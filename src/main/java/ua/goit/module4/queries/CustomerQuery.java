@@ -7,11 +7,9 @@ import ua.goit.module4.models.DbModel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class CustomerQuery extends AbstractQuery{
+public class CustomerQuery extends AbstractQuery {
     private static CustomerQuery instance;
 
     private CustomerQuery(DbConnector dbConnector) {
@@ -36,26 +34,17 @@ public class CustomerQuery extends AbstractQuery{
     }
 
     @Override
-    public List<Customer> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<Customer> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                Customer customer = new Customer();
-                customer.setId(resultSet.getInt("id"));
-                customer.setName(resultSet.getString("name"));
-                customer.setCountry(resultSet.getString("country"));
-                list.add(customer);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (resultSet.next()) {
+            Customer customer = new Customer();
+            customer.setId(resultSet.getInt("id"));
+            customer.setName(resultSet.getString("name"));
+            customer.setCountry(resultSet.getString("country"));
+            list.add(customer);
         }
+        resultSet.close();
         return list;
-    }
-
-    @Override
-    public List<Customer> getAll() {
-        return get(new HashMap<>());
     }
 }

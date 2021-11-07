@@ -5,6 +5,7 @@ public class Developer extends AbstractModel {
     private Integer id;
     private Integer age;
     private Integer company_id;
+    private String company_name;
     private String name;
     private Integer salary;
 
@@ -58,12 +59,21 @@ public class Developer extends AbstractModel {
         this.salary = salary;
     }
 
+    public String getCompany_name() {
+        return company_name;
+    }
+
+    public void setCompany_name(String company_name) {
+        this.company_name = company_name;
+    }
+
     @Override
     public String toString() {
         return "Developer{" +
                 "id=" + id +
                 ", age=" + age +
                 ", company_id=" + company_id +
+                ", company_name='" + company_name + '\'' +
                 ", name='" + name + '\'' +
                 ", salary=" + salary +
                 '}';

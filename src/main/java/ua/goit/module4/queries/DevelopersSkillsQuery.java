@@ -7,9 +7,7 @@ import ua.goit.module4.models.DevelopersSkills;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DevelopersSkillsQuery extends AbstractQuery {
 
@@ -37,27 +35,37 @@ public class DevelopersSkillsQuery extends AbstractQuery {
     }
 
     @Override
-    public List<DevelopersSkills> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<DevelopersSkills> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                DevelopersSkills developersSkills = new DevelopersSkills();
-                developersSkills.setId(resultSet.getInt("id"));
-                developersSkills.setSkill_id(resultSet.getInt("skill_id"));
-                developersSkills.setDeveloper_id(resultSet.getInt("company_id"));
-                list.add(developersSkills);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (resultSet.next()) {
+            DevelopersSkills developersSkills = new DevelopersSkills();
+            developersSkills.setId(resultSet.getInt("id"));
+            developersSkills.setSkill_id(resultSet.getInt("skill_id"));
+            developersSkills.setDeveloper_id(resultSet.getInt("company_id"));
+            list.add(developersSkills);
         }
+        resultSet.close();
         return list;
     }
 
     @Override
-    public List<DevelopersSkills> getAll() {
-        return get(new HashMap<>());
+    public StringBuilder getAdvancedMainRequest() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("SELECT ")
+                .append(getTableName())
+                .append(".*, ")
+                .append("companies.name as company_name, skills.name as skill_name")
+                .append(" FROM ")
+                .append(getTableName())
+                .append(" JOIN companies ON ")
+                .append(getTableName())
+                .append(".company_id = companies.id")
+                .append(" JOIN skills ON ")
+                .append(getTableName())
+                .append(".skill_id = skills.id");
+
     }
 
 }

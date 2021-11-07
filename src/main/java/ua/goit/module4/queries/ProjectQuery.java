@@ -7,11 +7,9 @@ import ua.goit.module4.models.Project;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class ProjectQuery extends AbstractQuery{
+public class ProjectQuery extends AbstractQuery {
 
     private static ProjectQuery instance;
 
@@ -37,30 +35,45 @@ public class ProjectQuery extends AbstractQuery{
     }
 
     @Override
-    public List<Project> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<Project> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                Project project = new Project();
-                project.setId(resultSet.getInt("id"));
-                project.setName(resultSet.getString("name"));
-                project.setCompany_id(resultSet.getInt("company_id"));
-                project.setCustomer_id(resultSet.getInt("customer_id"));
-                project.setDescription(resultSet.getString("description"));
-                project.setCreation_date(resultSet.getDate("creation_date"));
-                list.add(project);
+        while (resultSet.next()) {
+            Project project = new Project();
+            project.setId(resultSet.getInt("id"));
+            project.setName(resultSet.getString("name"));
+            project.setCompany_id(resultSet.getInt("company_id"));
+            project.setCustomer_id(resultSet.getInt("customer_id"));
+            project.setDescription(resultSet.getString("description"));
+            project.setCreation_date(resultSet.getDate("creation_date"));
+            try {
+                project.setCompany_name(resultSet.getString("company_name"));
+                project.setCustomer_name(resultSet.getString("customer_name"));
+            } catch (SQLException ignored) {
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            list.add(project);
         }
+        resultSet.close();
         return list;
     }
 
     @Override
-    public List<Project> getAll() {
-        return get(new HashMap<>());
+    public StringBuilder getAdvancedMainRequest() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("SELECT ")
+                .append(getTableName())
+                .append(".*, ")
+                .append("companies.name as company_name, customers.name as customer_name")
+                .append(" FROM ")
+                .append(getTableName())
+                .append(" JOIN companies ON ")
+                .append(getTableName())
+                .append(".company_id = companies.id")
+                .append(" JOIN customers ON ")
+                .append(getTableName())
+                .append(".customer_id = customers.id");
+
     }
 
 }

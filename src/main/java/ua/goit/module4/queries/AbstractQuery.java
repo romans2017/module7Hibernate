@@ -4,14 +4,11 @@ import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
 
 import java.lang.reflect.Field;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-abstract public class AbstractQuery implements Query {
+abstract class AbstractQuery implements Query {
 
     protected DbConnector dbConnector;
     protected ResultSetMetaData columnsTypes;
@@ -19,8 +16,7 @@ abstract public class AbstractQuery implements Query {
 
     abstract protected String getTableName();
     abstract protected Class<? extends DbModel> getTableClass();
-    abstract protected List<? extends DbModel> get(Map<String, Object> simpleFilter);
-    abstract protected List<? extends DbModel> getAll();
+    abstract protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException;
 
     protected AbstractQuery(DbConnector dbConnector) {
         this.dbConnector = dbConnector;
@@ -57,6 +53,14 @@ abstract public class AbstractQuery implements Query {
         }
 
         return mapFields.entrySet();
+    }
+
+    protected StringBuilder getAdvancedMainRequest() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("SELECT * FROM ")
+                .append(getTableName());
+
     }
 
     @Override
@@ -145,25 +149,23 @@ abstract public class AbstractQuery implements Query {
         });
     }
 
-    @Override
-    public ResultSet read(Map<String, Object> simpleFilter) {
-
+    private ResultSet readDb(StringBuilder mainRequest, Map<String, Object> simpleFilter) {
         Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypes;
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("SELECT * FROM ")
-                .append(getTableName());
 
         StringBuilder whereStringBuilder = new StringBuilder();
         Set<Map.Entry<String, Integer>> filteredEntries = entries.stream()
                 .filter(item -> simpleFilter.containsKey(item.getKey()))
                 .peek(item -> whereStringBuilder.append(item.getKey()).append("=").append("?"))
                 .collect(Collectors.toSet());
+        if (simpleFilter.get("id") != null) {
+            whereStringBuilder.append("id=?");
+            filteredEntries.add(Map.entry("id", Types.INTEGER));
+        }
         if (whereStringBuilder.length() > 0) {
-            stringBuilder.append(" WHERE ").append(whereStringBuilder);
+            mainRequest.append(" WHERE ").append(whereStringBuilder);
         }
 
-        String requestString = stringBuilder.toString();
+        String requestString = mainRequest.toString();
 
         return dbConnector.executeStatementQuery(requestString, preparedStatement -> {
             try {
@@ -181,5 +183,31 @@ abstract public class AbstractQuery implements Query {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Override
+    public ResultSet read(Map<String, Object> simpleFilter) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT * FROM ")
+                .append(getTableName());
+        return readDb(stringBuilder, simpleFilter);
+
+    }
+
+    public List<? extends DbModel> get(Map<String, Object> simpleFilter) throws SQLException {
+        return normalizeSqlResponse(readDb(getAdvancedMainRequest(), simpleFilter));
+    }
+
+    public List<? extends DbModel> getAll() throws SQLException {
+        return get(new HashMap<>());
+    }
+
+    public List<? extends DbModel> getAdvanced(Map<String, Object> simpleFilter) throws SQLException {
+        return get(simpleFilter);
+    }
+
+    public List<? extends DbModel> getAllAdvanced() throws SQLException {
+        return getAdvanced(new HashMap<>());
     }
 }

@@ -6,12 +6,16 @@ public class Company extends AbstractModel {
     private String name;
     private String country;
 
-    public Company() {
+    public Company(){}
+
+    public Company(String[] params) {
+        this.name = params[1].trim();
+        this.country = params[2].trim();
     }
 
-    public Company(String name, String country) {
-        this.name = name;
-        this.country = country;
+    public Company(Company currentCompany, String[] params) {
+        this.name = params[2].isBlank() ? currentCompany.getName() : params[2].trim();
+        this.country = params[3].isBlank() ? currentCompany.getCountry() : params[3].trim();
     }
 
     public Integer getId() {

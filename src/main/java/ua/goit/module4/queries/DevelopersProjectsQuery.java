@@ -7,11 +7,9 @@ import ua.goit.module4.models.DevelopersProjects;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class DevelopersProjectsQuery extends AbstractQuery{
+public class DevelopersProjectsQuery extends AbstractQuery {
 
     private static DevelopersProjectsQuery instance;
 
@@ -37,27 +35,36 @@ public class DevelopersProjectsQuery extends AbstractQuery{
     }
 
     @Override
-    public List<DevelopersProjects> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<DevelopersProjects> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                DevelopersProjects developersProjects = new DevelopersProjects();
-                developersProjects.setId(resultSet.getInt("id"));
-                developersProjects.setProject_id(resultSet.getInt("project_id"));
-                developersProjects.setDeveloper_id(resultSet.getInt("company_id"));
-                list.add(developersProjects);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (resultSet.next()) {
+            DevelopersProjects developersProjects = new DevelopersProjects();
+            developersProjects.setId(resultSet.getInt("id"));
+            developersProjects.setProject_id(resultSet.getInt("project_id"));
+            developersProjects.setDeveloper_id(resultSet.getInt("company_id"));
+            list.add(developersProjects);
         }
+        resultSet.close();
         return list;
     }
 
     @Override
-    public List<DevelopersProjects> getAll() {
-        return get(new HashMap<>());
-    }
+    public StringBuilder getAdvancedMainRequest() {
 
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("SELECT ")
+                .append(getTableName())
+                .append(".*, ")
+                .append("companies.name as company_name, projects.name as project_name")
+                .append(" FROM ")
+                .append(getTableName())
+                .append(" JOIN companies ON ")
+                .append(getTableName())
+                .append(".company_id = companies.id")
+                .append(" JOIN projects ON ")
+                .append(getTableName())
+                .append(".project_id = projects.id");
+
+    }
 }

@@ -7,9 +7,7 @@ import ua.goit.module4.models.Skill;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SkillQuery extends AbstractQuery {
 
@@ -37,27 +35,18 @@ public class SkillQuery extends AbstractQuery {
     }
 
     @Override
-    public List<Skill> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<Skill> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                Skill skill = new Skill();
-                skill.setId(resultSet.getInt("id"));
-                skill.setLanguage(resultSet.getString("language"));
-                skill.setLevel(resultSet.getString("level"));
-                list.add(skill);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (resultSet.next()) {
+            Skill skill = new Skill();
+            skill.setId(resultSet.getInt("id"));
+            skill.setLanguage(resultSet.getString("language"));
+            skill.setLevel(resultSet.getString("level"));
+            list.add(skill);
         }
+        resultSet.close();
         return list;
-    }
-
-    @Override
-    public List<Skill> getAll() {
-        return get(new HashMap<>());
     }
 
 }

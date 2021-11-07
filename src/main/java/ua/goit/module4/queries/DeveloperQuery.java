@@ -6,12 +6,9 @@ import ua.goit.module4.models.Developer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class DeveloperQuery extends AbstractQuery{
+public class DeveloperQuery extends AbstractQuery {
     private static DeveloperQuery instance;
 
     private DeveloperQuery(DbConnector dbConnector) {
@@ -36,28 +33,40 @@ public class DeveloperQuery extends AbstractQuery{
     }
 
     @Override
-    public List<Developer> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         List<Developer> list = new ArrayList<>();
 
-        try {
-            while (resultSet.next()) {
-                Developer developer = new Developer();
-                developer.setId(resultSet.getInt("id"));
-                developer.setName(resultSet.getString("name"));
-                developer.setCompany_id(resultSet.getInt("company_id"));
-                developer.setAge(resultSet.getInt("age"));
-                developer.setSalary(resultSet.getInt("salary"));
-                list.add(developer);
+        while (resultSet.next()) {
+            Developer developer = new Developer();
+            developer.setId(resultSet.getInt("id"));
+            developer.setName(resultSet.getString("name"));
+            developer.setCompany_id(resultSet.getInt("company_id"));
+            developer.setAge(resultSet.getInt("age"));
+            developer.setSalary(resultSet.getInt("salary"));
+            try {
+                developer.setCompany_name(resultSet.getString("company_name"));
+            } catch (SQLException ignored) {
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            list.add(developer);
         }
+        resultSet.close();
         return list;
     }
 
     @Override
-    public List<Developer> getAll() {
-        return get(new HashMap<>());
+    public StringBuilder getAdvancedMainRequest() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("SELECT ")
+                .append(getTableName())
+                .append(".*, ")
+                .append("companies.name as company_name, ")
+                .append(" FROM ")
+                .append(getTableName())
+                .append(" JOIN companies ON ")
+                .append(getTableName())
+                .append(".company_id = companies.id");
+
     }
+
 }

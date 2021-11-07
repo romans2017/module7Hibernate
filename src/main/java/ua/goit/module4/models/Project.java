@@ -11,6 +11,8 @@ public class Project extends AbstractModel {
     private String description;
     private String name;
     private Date creation_date;
+    private String company_name;
+    private String customer_name;
 
     public Integer getId() {
         return id;
@@ -68,6 +70,22 @@ public class Project extends AbstractModel {
         this.creation_date = creation_date;
     }
 
+    public String getCompany_name() {
+        return company_name;
+    }
+
+    public void setCompany_name(String company_name) {
+        this.company_name = company_name;
+    }
+
+    public String getCustomer_name() {
+        return customer_name;
+    }
+
+    public void setCustomer_name(String customer_name) {
+        this.customer_name = customer_name;
+    }
+
     @Override
     public String toString() {
         return "Project{" +
@@ -78,6 +96,8 @@ public class Project extends AbstractModel {
                 ", description='" + description + '\'' +
                 ", name='" + name + '\'' +
                 ", creation_date=" + creation_date +
+                ", company_name='" + company_name + '\'' +
+                ", customer_name='" + customer_name + '\'' +
                 '}';
     }
 }

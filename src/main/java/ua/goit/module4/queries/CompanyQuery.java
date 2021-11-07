@@ -7,11 +7,9 @@ import ua.goit.module4.models.DbModel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class CompanyQuery extends AbstractQuery{
+public class CompanyQuery extends AbstractQuery {
     private static CompanyQuery instance;
 
     private CompanyQuery(DbConnector dbConnector) {
@@ -36,26 +34,18 @@ public class CompanyQuery extends AbstractQuery{
     }
 
     @Override
-    public List<Company> get(Map<String, Object> simpleFilter) {
-        ResultSet resultSet = read(simpleFilter);
-        List<Company> list = new ArrayList<>();
+    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
 
-        try {
-            while (resultSet.next()) {
-                Company company = new Company();
-                company.setId(resultSet.getInt("id"));
-                company.setName(resultSet.getString("name"));
-                company.setCountry(resultSet.getString("country"));
-                list.add(company);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        List<Company> list = new ArrayList<>();
+        while (resultSet.next()) {
+            Company company = new Company();
+            company.setId(resultSet.getInt("id"));
+            company.setName(resultSet.getString("name"));
+            company.setCountry(resultSet.getString("country"));
+            list.add(company);
         }
+        resultSet.close();
         return list;
     }
 
-    @Override
-    public List<Company> getAll() {
-        return get(new HashMap<>());
-    }
 }

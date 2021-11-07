@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Consumer;
 
-abstract public class AbstractController implements DbConnector {
+abstract class AbstractController implements DbConnector {
 
     protected DataSource connectionDataSource;
 
