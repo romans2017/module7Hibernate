@@ -2,12 +2,11 @@ package ua.goit.module4.queries;
 
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
+import ua.goit.module4.models.ModelsList;
 import ua.goit.module4.models.Project;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProjectQuery extends AbstractQuery {
 
@@ -35,8 +34,8 @@ public class ProjectQuery extends AbstractQuery {
     }
 
     @Override
-    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
-        List<Project> list = new ArrayList<>();
+    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+        ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
             Project project = new Project();
@@ -46,6 +45,7 @@ public class ProjectQuery extends AbstractQuery {
             project.setCustomer_id(resultSet.getInt("customer_id"));
             project.setDescription(resultSet.getString("description"));
             project.setCreation_date(resultSet.getDate("creation_date"));
+            project.setCost(resultSet.getInt("cost"));
             try {
                 project.setCompany_name(resultSet.getString("company_name"));
                 project.setCustomer_name(resultSet.getString("customer_name"));

@@ -12,11 +12,18 @@ public class Developer extends AbstractModel {
     public Developer() {
     }
 
-    public Developer(Integer age, Integer company_id, String name, Integer salary) {
-        this.age = age;
-        this.company_id = company_id;
-        this.name = name;
-        this.salary = salary;
+    public Developer(String[] params) throws ArrayIndexOutOfBoundsException, NumberFormatException {
+        this.name = params[1].trim();
+        this.age = Integer.parseInt(params[2].trim());
+        this.company_id = Integer.parseInt(params[3].trim());
+        this.salary = Integer.parseInt(params[4].trim());
+    }
+
+    public Developer(Developer currentDbModel, String[] params) throws ArrayIndexOutOfBoundsException, NumberFormatException {
+        this.name = params[2].isBlank() ? currentDbModel.getName() : params[2].trim();
+        this.age = params[3].isBlank() ? currentDbModel.getAge() : Integer.parseInt(params[3].trim());
+        this.company_id = params[4].isBlank() ? currentDbModel.getCompany_id() : Integer.parseInt(params[4].trim());
+        this.salary = params[5].isBlank() ? currentDbModel.getSalary() : Integer.parseInt(params[5].trim());
     }
 
     public Integer getId() {

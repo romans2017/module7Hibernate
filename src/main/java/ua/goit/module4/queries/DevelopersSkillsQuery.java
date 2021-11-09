@@ -3,11 +3,10 @@ package ua.goit.module4.queries;
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
 import ua.goit.module4.models.DevelopersSkills;
+import ua.goit.module4.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DevelopersSkillsQuery extends AbstractQuery {
 
@@ -35,14 +34,19 @@ public class DevelopersSkillsQuery extends AbstractQuery {
     }
 
     @Override
-    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
-        List<DevelopersSkills> list = new ArrayList<>();
+    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+        ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
             DevelopersSkills developersSkills = new DevelopersSkills();
             developersSkills.setId(resultSet.getInt("id"));
+            developersSkills.setDeveloper_id(resultSet.getInt("developer_id"));
             developersSkills.setSkill_id(resultSet.getInt("skill_id"));
-            developersSkills.setDeveloper_id(resultSet.getInt("company_id"));
+            try {
+                developersSkills.setDeveloper_name(resultSet.getString("developer_name"));
+                developersSkills.setSkill_language(resultSet.getString("skill_language"));
+            } catch (SQLException ignored) {
+            }
             list.add(developersSkills);
         }
         resultSet.close();
@@ -56,12 +60,12 @@ public class DevelopersSkillsQuery extends AbstractQuery {
         return stringBuilder.append("SELECT ")
                 .append(getTableName())
                 .append(".*, ")
-                .append("companies.name as company_name, skills.name as skill_name")
+                .append("developers.name as developer_name, skills.language as skill_language")
                 .append(" FROM ")
                 .append(getTableName())
-                .append(" JOIN companies ON ")
+                .append(" JOIN developers ON ")
                 .append(getTableName())
-                .append(".company_id = companies.id")
+                .append(".developer_id = developers.id")
                 .append(" JOIN skills ON ")
                 .append(getTableName())
                 .append(".skill_id = skills.id");

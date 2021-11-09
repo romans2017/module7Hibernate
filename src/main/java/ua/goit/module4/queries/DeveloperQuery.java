@@ -3,10 +3,10 @@ package ua.goit.module4.queries;
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
 import ua.goit.module4.models.Developer;
+import ua.goit.module4.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 
 public class DeveloperQuery extends AbstractQuery {
     private static DeveloperQuery instance;
@@ -33,8 +33,8 @@ public class DeveloperQuery extends AbstractQuery {
     }
 
     @Override
-    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
-        List<Developer> list = new ArrayList<>();
+    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+        ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
             Developer developer = new Developer();
@@ -60,7 +60,7 @@ public class DeveloperQuery extends AbstractQuery {
         return stringBuilder.append("SELECT ")
                 .append(getTableName())
                 .append(".*, ")
-                .append("companies.name as company_name, ")
+                .append("companies.name as company_name")
                 .append(" FROM ")
                 .append(getTableName())
                 .append(" JOIN companies ON ")

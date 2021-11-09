@@ -3,11 +3,10 @@ package ua.goit.module4.queries;
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.Company;
 import ua.goit.module4.models.DbModel;
+import ua.goit.module4.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CompanyQuery extends AbstractQuery {
     private static CompanyQuery instance;
@@ -34,9 +33,9 @@ public class CompanyQuery extends AbstractQuery {
     }
 
     @Override
-    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
 
-        List<Company> list = new ArrayList<>();
+        ModelsList list = new ModelsList();
         while (resultSet.next()) {
             Company company = new Company();
             company.setId(resultSet.getInt("id"));

@@ -1,6 +1,5 @@
 package ua.goit.module4.connectors.dbcontrollers;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.function.Consumer;

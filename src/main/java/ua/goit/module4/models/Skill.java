@@ -6,6 +6,19 @@ public class Skill extends AbstractModel {
     private String language;
     private String level;
 
+    public Skill() {
+    }
+
+    public Skill(String[] params) throws ArrayIndexOutOfBoundsException {
+        this.language = params[1].trim();
+        this.level = params[2].trim();
+    }
+
+    public Skill(Skill currentDbModel, String[] params) throws ArrayIndexOutOfBoundsException {
+        this.language = params[2].isBlank() ? currentDbModel.getLanguage() : params[2].trim();
+        this.level = params[3].isBlank() ? currentDbModel.getLevel() : params[3].trim();
+    }
+
     public Integer getId() {
         return id;
     }

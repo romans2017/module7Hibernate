@@ -1,5 +1,7 @@
 package ua.goit.module4.models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Project extends AbstractModel {
@@ -13,6 +15,27 @@ public class Project extends AbstractModel {
     private Date creation_date;
     private String company_name;
     private String customer_name;
+
+    public Project() {
+    }
+
+    public Project(String[] params) throws ArrayIndexOutOfBoundsException, NumberFormatException, ParseException {
+        this.name = params[1].trim();
+        this.description = params[2].trim();
+        this.cost = Integer.parseInt(params[3].trim());
+        this.creation_date = new SimpleDateFormat("yyyy-MM-dd").parse(params[4].trim());
+        this.company_id = Integer.parseInt(params[5].trim());
+        this.customer_id = Integer.parseInt(params[6].trim());
+    }
+
+    public Project(Project currentDbModel, String[] params) throws ArrayIndexOutOfBoundsException, NumberFormatException, ParseException {
+        this.name = params[2].isBlank() ? currentDbModel.getName() : params[2].trim();
+        this.description = params[3].isBlank() ? currentDbModel.getDescription() : params[3].trim();
+        this.cost = params[4].isBlank() ? currentDbModel.getCost() : Integer.parseInt(params[4].trim());
+        this.creation_date = params[5].isBlank() ? currentDbModel.getCreation_date() : new SimpleDateFormat("yyyy-MM-dd").parse(params[5].trim());
+        this.company_id = params[6].isBlank() ? currentDbModel.getCompany_id() : Integer.parseInt(params[6].trim());
+        this.customer_id = params[7].isBlank() ? currentDbModel.getCustomer_id() : Integer.parseInt(params[7].trim());
+    }
 
     public Integer getId() {
         return id;
@@ -90,13 +113,13 @@ public class Project extends AbstractModel {
     public String toString() {
         return "Project{" +
                 "id=" + id +
-                ", company_id=" + company_id +
-                ", cost=" + cost +
-                ", customer_id=" + customer_id +
-                ", description='" + description + '\'' +
                 ", name='" + name + '\'' +
-                ", creation_date=" + creation_date +
+                ", cost=" + cost +
+                ", description='" + description + '\'' +
+                ", creation_date=" + creation_date.toString() +
+                ", company_id=" + company_id +
                 ", company_name='" + company_name + '\'' +
+                ", customer_id=" + customer_id +
                 ", customer_name='" + customer_name + '\'' +
                 '}';
     }

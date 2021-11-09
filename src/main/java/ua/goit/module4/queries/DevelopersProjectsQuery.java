@@ -3,11 +3,10 @@ package ua.goit.module4.queries;
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
 import ua.goit.module4.models.DevelopersProjects;
+import ua.goit.module4.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DevelopersProjectsQuery extends AbstractQuery {
 
@@ -35,14 +34,19 @@ public class DevelopersProjectsQuery extends AbstractQuery {
     }
 
     @Override
-    protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException {
-        List<DevelopersProjects> list = new ArrayList<>();
+    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+        ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
             DevelopersProjects developersProjects = new DevelopersProjects();
             developersProjects.setId(resultSet.getInt("id"));
             developersProjects.setProject_id(resultSet.getInt("project_id"));
-            developersProjects.setDeveloper_id(resultSet.getInt("company_id"));
+            developersProjects.setDeveloper_id(resultSet.getInt("developer_id"));
+            try {
+                developersProjects.setDeveloper_name(resultSet.getString("developer_name"));
+                developersProjects.setProject_name(resultSet.getString("project_name"));
+            } catch (SQLException ignored) {
+            }
             list.add(developersProjects);
         }
         resultSet.close();
@@ -56,12 +60,12 @@ public class DevelopersProjectsQuery extends AbstractQuery {
         return stringBuilder.append("SELECT ")
                 .append(getTableName())
                 .append(".*, ")
-                .append("companies.name as company_name, projects.name as project_name")
+                .append("developers.name as developer_name, projects.name as project_name")
                 .append(" FROM ")
                 .append(getTableName())
-                .append(" JOIN companies ON ")
+                .append(" JOIN developers ON ")
                 .append(getTableName())
-                .append(".company_id = companies.id")
+                .append(".developer_id = developers.id")
                 .append(" JOIN projects ON ")
                 .append(getTableName())
                 .append(".project_id = projects.id");

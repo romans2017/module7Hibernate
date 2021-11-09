@@ -2,6 +2,7 @@ package ua.goit.module4.queries;
 
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
 import ua.goit.module4.models.DbModel;
+import ua.goit.module4.models.ModelsList;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -10,13 +11,16 @@ import java.util.stream.Collectors;
 
 abstract class AbstractQuery implements Query {
 
-    protected DbConnector dbConnector;
+    protected final DbConnector dbConnector;
     protected ResultSetMetaData columnsTypes;
-    protected Set<Map.Entry<String, Integer>> mappingFieldsColumnTypes;
+    protected final Set<Map.Entry<String, Integer>> mappingFieldsColumnTypes;
+    protected final Set<Map.Entry<String, Integer>> mappingFieldsColumnTypesForReading;
 
     abstract protected String getTableName();
+
     abstract protected Class<? extends DbModel> getTableClass();
-    abstract protected List<? extends DbModel> normalizeSqlResponse(ResultSet resultSet) throws SQLException;
+
+    abstract protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException;
 
     protected AbstractQuery(DbConnector dbConnector) {
         this.dbConnector = dbConnector;
@@ -24,7 +28,8 @@ abstract class AbstractQuery implements Query {
             this.columnsTypes = getMeta();
         } catch (SQLException ignored) {
         }
-        this.mappingFieldsColumnTypes = mapFieldsToColumnTypes(getTableClass());
+        this.mappingFieldsColumnTypes = mapFieldsToColumnTypes(getTableClass(), false);
+        this.mappingFieldsColumnTypesForReading = mapFieldsToColumnTypes(getTableClass(), true);
     }
 
     private ResultSetMetaData getMeta() throws SQLException {
@@ -34,12 +39,12 @@ abstract class AbstractQuery implements Query {
                 .getMetaData();
     }
 
-    private Set<Map.Entry<String, Integer>> mapFieldsToColumnTypes(Class<? extends DbModel> classModel) {
-        //get map: key is Field.name, value is 12 (type VARCHAR as default)
+    private Set<Map.Entry<String, Integer>> mapFieldsToColumnTypes(Class<? extends DbModel> classModel, boolean isForReading) {
+        //get map from class: key is Field.name, value is 12 (type VARCHAR as default)
         Map<String, Integer> mapFields = Arrays.stream(classModel.getDeclaredFields())
                 .map(Field::getName)
                 .filter(name -> !name.equals("id"))
-                .collect(Collectors.toMap(item -> item, item -> Types.VARCHAR));
+                .collect(Collectors.toMap(item -> item, item -> -1000));
 
         //fill map with SQL columns' types
         try {
@@ -51,8 +56,24 @@ abstract class AbstractQuery implements Query {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return mapFields.entrySet();
+        if (isForReading) {
+            //fill type VARCHAR in elements are not present in SQL table
+            return mapFields
+                    .entrySet()
+                    .stream()
+                    .peek(item -> {
+                        if (item.getValue() == -1000)
+                            item.setValue(Types.VARCHAR);
+                    })
+                    .collect(Collectors.toSet());
+        } else {
+            //remove elements which are not present in SQL table
+            return mapFields
+                    .entrySet()
+                    .stream()
+                    .filter(item -> item.getValue() != -1000)
+                    .collect(Collectors.toSet());
+        }
     }
 
     protected StringBuilder getAdvancedMainRequest() {
@@ -150,19 +171,25 @@ abstract class AbstractQuery implements Query {
     }
 
     private ResultSet readDb(StringBuilder mainRequest, Map<String, Object> simpleFilter) {
-        Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypes;
+        Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypesForReading;
 
         StringBuilder whereStringBuilder = new StringBuilder();
         Set<Map.Entry<String, Integer>> filteredEntries = entries.stream()
                 .filter(item -> simpleFilter.containsKey(item.getKey()))
-                .peek(item -> whereStringBuilder.append(item.getKey()).append("=").append("?"))
+                .peek(item -> whereStringBuilder.append(item.getKey()).append("=").append("?").append(" and "))
                 .collect(Collectors.toSet());
         if (simpleFilter.get("id") != null) {
-            whereStringBuilder.append("id=?");
+            whereStringBuilder
+                    .append(getTableName())
+                    .append(".id=?");
             filteredEntries.add(Map.entry("id", Types.INTEGER));
         }
         if (whereStringBuilder.length() > 0) {
-            mainRequest.append(" WHERE ").append(whereStringBuilder);
+            String whereString = whereStringBuilder.toString();
+            if (whereString.endsWith("and ")) {
+                whereString += "1=1";
+            }
+            mainRequest.append(" WHERE ").append(whereString);
         }
 
         String requestString = mainRequest.toString();
@@ -186,28 +213,8 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public ResultSet read(Map<String, Object> simpleFilter) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("SELECT * FROM ")
-                .append(getTableName());
-        return readDb(stringBuilder, simpleFilter);
-
-    }
-
-    public List<? extends DbModel> get(Map<String, Object> simpleFilter) throws SQLException {
+    public ModelsList get(Map<String, Object> simpleFilter) throws SQLException {
         return normalizeSqlResponse(readDb(getAdvancedMainRequest(), simpleFilter));
     }
 
-    public List<? extends DbModel> getAll() throws SQLException {
-        return get(new HashMap<>());
-    }
-
-    public List<? extends DbModel> getAdvanced(Map<String, Object> simpleFilter) throws SQLException {
-        return get(simpleFilter);
-    }
-
-    public List<? extends DbModel> getAllAdvanced() throws SQLException {
-        return getAdvanced(new HashMap<>());
-    }
 }

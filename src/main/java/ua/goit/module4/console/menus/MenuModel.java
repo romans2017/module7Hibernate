@@ -1,4 +1,4 @@
-package ua.goit.module4.console;
+package ua.goit.module4.console.menus;
 
 import java.util.HashMap;
 import java.util.function.Consumer;

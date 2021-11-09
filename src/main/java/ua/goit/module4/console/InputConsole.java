@@ -1,6 +1,8 @@
 package ua.goit.module4.console;
 
 import ua.goit.module4.connectors.dbcontrollers.DbConnector;
+import ua.goit.module4.console.menus.Menu;
+import ua.goit.module4.console.menus.StartMenu;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -25,13 +27,13 @@ public class InputConsole {
     }
 
     public void processInput(String inputString) {
-        //разбиваем на массив с пробелами
+        //split to array with delimiter space
         String[] params = inputString.trim().toLowerCase(Locale.ROOT).split("\s+");
 
-        //получаем первое слово. Считаем, что оно команда меню
+        //get first word. Consider that this is command
         String command = params[0];
 
-        //получаем и выполняем команду из меню (если есть). Переопределение меню происходит в команде
+        //get and execute command. User's menu overriding occur in the handler
         Consumer<String> currentCommand = currentMenu.getMenuModel().get(command);
         if (currentCommand != null) {
             currentCommand.accept(inputString);
