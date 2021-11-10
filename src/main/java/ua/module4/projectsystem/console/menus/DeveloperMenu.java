@@ -43,8 +43,8 @@ public class DeveloperMenu extends AbstractMenu {
                 delete (command: delete --id)
                 Skills by-> (command: skills --id)
                 Projects by-> (command: projects --id)
-                UP...
-                EXIT...
+                UP... (command 'up') 
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

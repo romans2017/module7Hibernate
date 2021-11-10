@@ -90,15 +90,15 @@ public class ReportMenu extends AbstractMenu {
     @Override
     public void showMenu() {
         String textMenu = """
-                
+                                
                 ******** REPORTS MENU ********
                 Salaries by project (command: salaries --project_id=value)
                 Developers by project (command: developers --project_id=value)
                 Java developers (command: java)
                 Middle developers (command: middle)
                 Projects (command: projects)
-                UP...
-                EXIT...
+                UP... (command 'up')
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

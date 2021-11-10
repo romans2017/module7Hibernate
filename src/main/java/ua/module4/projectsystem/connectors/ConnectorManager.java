@@ -22,7 +22,7 @@ public class ConnectorManager {
         }
         if (Objects.equals(properties.getProperty("db.type"), "postgres")) {
             return new PostgresController(properties);
-        } else if (Objects.equals(properties.getProperty("db.type"), "postgres")) {
+        } else if (Objects.equals(properties.getProperty("db.type"), "mssql")) {
             return new MssqlController(properties);
         } else {
             return null;

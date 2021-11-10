@@ -40,8 +40,8 @@ public class CustomerMenu extends AbstractMenu {
                 update (command: update --id --(name or empty) --(country or empty))
                 read (command: read --id=value(optional) --name=value(optional) --country=value(optional))
                 delete (command: delete --id)
-                UP...
-                EXIT...
+                UP... (command 'up')
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

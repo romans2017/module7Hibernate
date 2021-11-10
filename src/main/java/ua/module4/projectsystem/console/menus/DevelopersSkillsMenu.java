@@ -41,7 +41,7 @@ public class DevelopersSkillsMenu extends AbstractMenu{
                     add (command: add --skill_id)
                     read (command: read --id=value(optional) --developer_id=value(optional) --skill_id=value(optional))
                     delete (command: delete --id)
-                    UP...
+                    UP... (command 'up')
                     EXIT...
                     ******** ********
                     """;
@@ -52,8 +52,8 @@ public class DevelopersSkillsMenu extends AbstractMenu{
                     add (command: add --developer_id)
                     read (command: read --id=value(optional) --developer_id=value(optional) --skill_id=value(optional))
                     delete (command: delete --id)
-                    UP...
-                    EXIT...
+                    UP... (command 'up')
+                    EXIT... (command 'exit')
                     ******** ********
                     """;
 

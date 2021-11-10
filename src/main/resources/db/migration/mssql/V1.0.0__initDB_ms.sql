@@ -1,5 +1,5 @@
 
-CREATE TABLE dou.dbo.skills
+CREATE TABLE dbo.skills
 (
     id integer not null identity(1,1),
 	language varchar(50) NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE dou.dbo.skills
     PRIMARY KEY (id)
 );
 
-CREATE TABLE dou.dbo.companies
+CREATE TABLE dbo.companies
 (
     id integer not null identity(1,1),
 	name varchar(100) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE dou.dbo.companies
     PRIMARY KEY (id)
 );
 
-CREATE TABLE dou.dbo.customers
+CREATE TABLE dbo.customers
 (
     id integer not null identity(1,1),
 	name varchar(100) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE dou.dbo.customers
     PRIMARY KEY (id)
 );
 
-CREATE TABLE dou.dbo.developers
+CREATE TABLE dbo.developers
 (
     id integer not null identity(1,1),
 	company_id integer NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE dou.dbo.developers
 	CONSTRAINT FK_developers_company_id FOREIGN KEY (company_id) REFERENCES companies (id)
 );
 
-CREATE TABLE dou.dbo.projects
+CREATE TABLE dbo.projects
 (
     id integer not null identity(1,1),
 	company_id integer NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE dou.dbo.projects
 	CONSTRAINT FK_projects_customer_id FOREIGN KEY (customer_id) REFERENCES customers (id)
 );
 
-CREATE TABLE dou.dbo.developers_skills
+CREATE TABLE dbo.developers_skills
 (	
 	id integer not null identity(1,1),
 	developer_id integer NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE dou.dbo.developers_skills
 	CONSTRAINT FK_developers_skills_skill_id FOREIGN KEY (skill_id) REFERENCES skills (id)
 );
 
-CREATE TABLE dou.dbo.developers_projects
+CREATE TABLE dbo.developers_projects
 (	
 	id integer not null identity(1,1),
 	developer_id integer NOT NULL,

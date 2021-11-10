@@ -33,7 +33,7 @@ public class InputConsole {
         //get first word. Consider that this is command
         String command = params[0];
 
-        //get and execute command. User's menu overrides in the handler
+        //get and execute command. User's menu is defined in the handler
         Consumer<String> currentCommand = currentMenu.getMenuModel().get(command);
         if (currentCommand != null) {
             currentCommand.accept(inputString);

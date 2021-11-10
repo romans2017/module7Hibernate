@@ -20,12 +20,12 @@ public class StartMenu extends AbstractMenu {
         Menu mainMenu = MainMenu.getInstance();
 
         menuModel = new MenuModel();
-        menuModel.put("1", param -> {
+        menuModel.put("postgres", param -> {
             InputConsole.getInstance().setDbConnector(ConnectorManager.connectTo(DbType.POSTGRES));
             InputConsole.getInstance().setCurrentMenu(mainMenu);
             mainMenu.showMenu();
         });
-        menuModel.put("2", param -> {
+        menuModel.put("mssql", param -> {
             InputConsole.getInstance().setDbConnector(ConnectorManager.connectTo(DbType.MSSQL));
             InputConsole.getInstance().setCurrentMenu(mainMenu);
             mainMenu.showMenu();
@@ -39,9 +39,9 @@ public class StartMenu extends AbstractMenu {
                 
                 ******** START MENU ********
                 Connect to...              
-                1.Postgres-> (command format 1)
-                2.MS SQL-> (command format 2)
-                EXIT
+                1.Postgres-> (command 'postgres')
+                2.MS SQL-> (command 'mssql')
+                EXIT (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

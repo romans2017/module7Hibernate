@@ -42,8 +42,8 @@ public class SkillMenu extends AbstractMenu{
                 read (command: read --id=value(optional) --language=value(optional) --level=value(optional))
                 delete (command: delete --id)
                 Developers by-> (command: developers --id)
-                UP...
-                EXIT...
+                UP... (command 'up')
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

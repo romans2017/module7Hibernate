@@ -61,13 +61,13 @@ public class MainMenu extends AbstractMenu {
         String textMenu = """
                 
                 ******** MAIN MENU ********             
-                1.Companies-> (command companies) 
-                2.Customers-> (command customers)
-                3.Skills-> (command skills)
-                4.Developers-> (command developers)
-                5.Projects-> (command projects)
-                6.REPORTS-> (command reports)
-                EXIT...
+                1.Companies-> (command 'companies') 
+                2.Customers-> (command 'customers')
+                3.Skills-> (command 'skills')
+                4.Developers-> (command 'developers')
+                5.Projects-> (command 'projects')
+                6.REPORTS-> (command 'reports')
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);

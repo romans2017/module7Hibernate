@@ -41,8 +41,8 @@ public class ProjectMenu extends AbstractMenu{
                 read (command: read --id=value(optional) --name=value(optional) --description=value(optional) --cost=value(optional) --creation_date=value(optional) --company_id=value(optional) --customer_id=value(optional))
                 delete (command: delete --id)
                 Developers by-> (command: developers --id)
-                UP...
-                EXIT...
+                UP... (command 'up')
+                EXIT... (command 'exit')
                 ******** ********
                 """;
         System.out.println(textMenu);
