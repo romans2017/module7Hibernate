@@ -23,5 +23,11 @@ public class QueryServiceLoader implements ServletContextListener {
         servletContext.setAttribute("developersSkillsQuery", DevelopersSkillsQuery.getInstance(dbConnector));
         servletContext.setAttribute("projectQuery", ProjectQuery.getInstance(dbConnector));
         servletContext.setAttribute("skillQuery", SkillQuery.getInstance(dbConnector));
+        servletContext.setAttribute("reportDevelopersJavaQuery", ReportDevelopersJavaQuery.getInstance(dbConnector));
+        servletContext.setAttribute("reportDevelopersMiddleQuery", ReportDevelopersMiddleQuery.getInstance(dbConnector));
+        servletContext.setAttribute("reportDevelopersProjectsQuery", ReportDevelopersProjectsQuery.getInstance(dbConnector));
+        servletContext.setAttribute("reportDevelopersSalaryQuery", ReportDevelopersSalaryQuery.getInstance(dbConnector));
+        servletContext.setAttribute("reportProjectsQuery", ReportProjectsQuery.getInstance(dbConnector));
+
     }
 }

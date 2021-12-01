@@ -8,8 +8,5 @@
     <div class="container">
         <jsp:include page="navigation.jsp"/>
     </div>
-    <div class="grid">
-
-    </div>
 </body>
 </html>

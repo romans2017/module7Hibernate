@@ -21,6 +21,18 @@
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="/skills">Skills</a>
                 </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Reports
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
+                    <li><a class="dropdown-item" href="/reportDevelopersSalary">Report "Developers' salary by project"</a></li>
+                    <li><a class="dropdown-item" href="/reportDevelopersProjects">Report "Developers by project"</a></li>
+                    <li><a class="dropdown-item" href="/reportDevelopersJava">Report "Java developers"</a></li>
+                    <li><a class="dropdown-item" href="/reportDevelopersMiddle">Report "Middle-level developers"</a></li>
+                    <li><a class="dropdown-item" href="/reportProjects">Report "Projects"</a></li>
+                  </ul>
+                </li>
             </ul>
         </div>
     </div>

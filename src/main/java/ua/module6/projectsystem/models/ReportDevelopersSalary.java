@@ -23,6 +23,22 @@ public class ReportDevelopersSalary extends AbstractModel{
         this.project_id = project_id;
     }
 
+    public Integer getProject_id() {
+        return project_id;
+    }
+
+    public String getProject_name() {
+        return project_name;
+    }
+
+    public String getDeveloper_name() {
+        return developer_name;
+    }
+
+    public Integer getSalary() {
+        return salary;
+    }
+
     @Override
     public String toString() {
         return "ReportDevelopersSalary{" +

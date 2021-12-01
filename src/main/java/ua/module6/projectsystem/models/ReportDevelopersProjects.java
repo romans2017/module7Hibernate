@@ -33,6 +33,30 @@ public class ReportDevelopersProjects extends AbstractModel{
         this.age = age;
     }
 
+    public Integer getProject_id() {
+        return project_id;
+    }
+
+    public String getProject_name() {
+        return project_name;
+    }
+
+    public Integer getDeveloper_id() {
+        return developer_id;
+    }
+
+    public String getDeveloper_name() {
+        return developer_name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Integer getSalary() {
+        return salary;
+    }
+
     @Override
     public String toString() {
         return "ReportDevelopersProjects{" +

@@ -33,6 +33,30 @@ public class ReportDevelopers extends AbstractModel{
         this.level = level;
     }
 
+    public Integer getDeveloper_id() {
+        return developer_id;
+    }
+
+    public String getDeveloper_name() {
+        return developer_name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Integer getSalary() {
+        return salary;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
     @Override
     public String toString() {
         return "ReportDevelopersJava{" +

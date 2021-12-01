@@ -25,6 +25,22 @@ public class ReportProjects extends AbstractModel{
         this.number_developers = number_developers;
     }
 
+    public Integer getProject_id() {
+        return project_id;
+    }
+
+    public String getProject_name() {
+        return project_name;
+    }
+
+    public Date getCreation_date() {
+        return creation_date;
+    }
+
+    public Integer getNumber_developers() {
+        return number_developers;
+    }
+
     @Override
     public String toString() {
         return "ReportProjects{" +
