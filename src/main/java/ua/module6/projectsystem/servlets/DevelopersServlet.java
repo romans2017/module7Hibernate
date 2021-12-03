@@ -92,7 +92,7 @@ public class DevelopersServlet extends AbstractServlet {
     private void removeAdditionalRef(Query sQuery, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         Integer id = Integer.parseInt(req.getParameter("id"));
         Integer developer_id = Integer.parseInt(req.getParameter("developer_id"));
-        sQuery.delete(id);
+        sQuery.delete(developer_id, id);
 
         DbModel developer = getDbModel(developer_id, Developer.class);
         postEditRequest(developer, req, resp);
@@ -115,14 +115,14 @@ public class DevelopersServlet extends AbstractServlet {
         getAdditionalRefs(model, serviceQueryDevelopersProjects)
                 .forEach(item -> {
                     try {
-                        serviceQueryDevelopersProjects.delete((Integer) item.get("id"));
+                        serviceQueryDevelopersProjects.delete((Integer) item.get("developer_id"), (Integer) item.get("project_id"));
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         e.printStackTrace();
                     }
                 });
         getAdditionalRefs(model, serviceQueryDevelopersSkills).forEach(item -> {
             try {
-                serviceQueryDevelopersSkills.delete((Integer) item.get("id"));
+                serviceQueryDevelopersSkills.delete((Integer) item.get("developer_id"), (Integer) item.get("skill_id"));
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }

@@ -7,6 +7,8 @@ import ua.module6.projectsystem.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Set;
 
 public class DevelopersSkillsQuery extends AbstractQuery {
 
@@ -39,7 +41,6 @@ public class DevelopersSkillsQuery extends AbstractQuery {
 
         while (resultSet.next()) {
             DevelopersSkills developersSkills = new DevelopersSkills();
-            developersSkills.setId(resultSet.getInt("id"));
             developersSkills.setDeveloper_id(resultSet.getInt("developer_id"));
             developersSkills.setSkill_id(resultSet.getInt("skill_id"));
             try {
@@ -52,6 +53,55 @@ public class DevelopersSkillsQuery extends AbstractQuery {
         }
         resultSet.close();
         return list;
+    }
+
+    @Override
+    public int delete(Integer ...primaryKeys) {
+        String requestString = "DELETE FROM " +
+                getTableName() +
+                " WHERE developer_id=? and skill_id=?";
+        return dbConnector.executeStatementUpdate(requestString, preparedStatement -> {
+            try {
+                preparedStatement.setInt(1, primaryKeys[0]);
+                preparedStatement.setInt(2, primaryKeys[1]);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public int update(DbModel dbModel, Integer... primaryKeys) {
+        Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypes;
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("UPDATE ")
+                .append(getTableName())
+                .append(" SET ");
+
+        entries.forEach(entry -> stringBuilder.append(entry.getKey()).append("=?,"));
+        stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
+        stringBuilder.append(" WHERE developer_id=? and skill_id=?");
+        String requestString = stringBuilder.toString();
+
+        return dbConnector.executeStatementUpdate(requestString, preparedStatement -> {
+            try {
+                int parameterIndex = 1;
+                for (Map.Entry<String, Integer> entry : entries) {
+                    Object value = dbModel.get(entry.getKey());
+                    if (value == null) {
+                        preparedStatement.setNull(parameterIndex, entry.getValue());
+                    } else {
+                        preparedStatement.setObject(parameterIndex, value, entry.getValue());
+                    }
+                    parameterIndex++;
+                }
+                preparedStatement.setInt(entries.size() + 1, primaryKeys[0]);
+                preparedStatement.setInt(entries.size() + 2, primaryKeys[1]);
+            } catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override

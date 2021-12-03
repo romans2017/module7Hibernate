@@ -112,7 +112,7 @@ ModelsList developersSkills = (ModelsList) request.getAttribute("developersSkill
                                     <div class="btn-group me-2" role="group" aria-label="Second group">
                                         <form action="/developers/removeProject" method="POST">
                                             <input hidden type="text" name="developer_id" value="<%= model.getId()%>"/>
-                                            <input hidden type="text" name="id" value="<%= project.getId()%>"/>
+                                            <input hidden type="text" name="id" value="<%= project.getProject_id()%>"/>
                                             <input type="submit" class="btn btn-danger" value="Remove" />
                                         </form>
                                     </div>
@@ -166,7 +166,7 @@ ModelsList developersSkills = (ModelsList) request.getAttribute("developersSkill
                                     <div class="btn-group me-2" role="group" aria-label="Second group">
                                         <form action="/developers/removeSkill" method="POST">
                                             <input hidden type="text" name="developer_id" value="<%= model.getId()%>"/>
-                                            <input hidden type="text" name="id" value="<%= skill.getId()%>"/>
+                                            <input hidden type="text" name="id" value="<%= skill.getSkill_id()%>"/>
                                             <input type="submit" class="btn btn-danger" value="Remove" />
                                         </form>
                                     </div>

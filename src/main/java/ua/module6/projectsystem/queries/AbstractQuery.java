@@ -122,7 +122,7 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public int update(DbModel dbModel, Integer primaryKey) {
+    public int update(DbModel dbModel, Integer ...primaryKeys) {
 
         Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypes;
 
@@ -148,7 +148,7 @@ abstract class AbstractQuery implements Query {
                     }
                     parameterIndex++;
                 }
-                preparedStatement.setInt(entries.size() + 1, primaryKey);
+                preparedStatement.setInt(entries.size() + 1, primaryKeys[0]);
             } catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -156,14 +156,14 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public int delete(Integer primaryKey) {
+    public int delete(Integer ...primaryKeys) {
 
         String requestString = "DELETE FROM " +
                 getTableName() +
                 " WHERE id=?";
         return dbConnector.executeStatementUpdate(requestString, preparedStatement -> {
             try {
-                preparedStatement.setInt(1, primaryKey);
+                preparedStatement.setInt(1, primaryKeys[0]);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

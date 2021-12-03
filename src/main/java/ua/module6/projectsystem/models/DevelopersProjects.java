@@ -2,14 +2,12 @@ package ua.module6.projectsystem.models;
 
 public class DevelopersProjects extends AbstractModel {
 
-    private Integer id;
     private Integer developer_id;
     private String developer_name;
     private Integer project_id;
     private String project_name;
 
     public DevelopersProjects() {
-        id = 0;
         developer_id = 0;
         developer_name = "";
         project_id = 0;
@@ -24,14 +22,6 @@ public class DevelopersProjects extends AbstractModel {
     public DevelopersProjects(DevelopersProjects currentDbModel, String[] params) throws ArrayIndexOutOfBoundsException, NumberFormatException {
         this.developer_id = params[2].isBlank() ? currentDbModel.getDeveloper_id() : Integer.parseInt(params[2].trim());
         this.project_id = params[3].isBlank() ? currentDbModel.getProject_id() : Integer.parseInt(params[3].trim());
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Integer getDeveloper_id() {
@@ -69,7 +59,6 @@ public class DevelopersProjects extends AbstractModel {
     @Override
     public String toString() {
         return "DevelopersProjects{" +
-                "id=" + id +
                 ", developer_id=" + developer_id +
                 ", developer_name='" + developer_name + '\'' +
                 ", project_id=" + project_id +

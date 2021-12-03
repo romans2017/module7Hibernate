@@ -10,8 +10,8 @@ import java.util.Map;
 public interface Query {
 
     int create(DbModel dbModel);
-    int update(DbModel dbModel, Integer primaryKey);
-    int delete(Integer primaryKey);
+    int update(DbModel dbModel, Integer ...primaryKeys);
+    int delete(Integer ...primaryKeys);
     ModelsList get(Map<String, Object> simpleFilter) throws SQLException;
 
     default ModelsList getAll() throws SQLException {
