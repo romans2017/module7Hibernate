@@ -55,24 +55,29 @@ abstract class AbstractServlet extends HttpServlet {
 
     abstract protected void createEditModel(HttpServletRequest req) throws NumberFormatException;
 
+    protected void postEditRequest(DbModel dbModel, HttpServletRequest req, HttpServletResponse resp) throws SQLException, NoSuchFieldException, IllegalAccessException, ServletException, IOException {
+        req.setAttribute("model", dbModel);
+        resp.reset();
+        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
+    }
+
     protected void newEditModel(HttpServletRequest req, HttpServletResponse resp) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException, ServletException, IOException {
         String url = req.getPathInfo();
         DbModel model = getDbModel(Integer.parseInt(req.getParameter("id")), classDbModel);
         if (!model.get("id").toString().equals("0") || url.equals("/new")) {
-            req.setAttribute("model", model);
-            req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
+            postEditRequest(model, req, resp);
         } else {
             redirect(resp);
         }
     }
 
-    protected void removeModel(HttpServletRequest req, HttpServletResponse resp) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException, IOException {
-        DbModel model = getDbModel(Integer.parseInt(req.getParameter("id")), classDbModel);
-        serviceQuery.delete((Integer) model.get("id"));
+    protected void removeModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Integer developer_id = Integer.parseInt(req.getParameter("id"));
+        serviceQuery.delete(developer_id);
         redirect(resp);
     }
 
-    protected void saveModel(HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException {
+    protected void saveModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         createEditModel(req);
         redirect(resp);
     }

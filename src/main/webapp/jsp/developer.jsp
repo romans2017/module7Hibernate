@@ -103,16 +103,16 @@ ModelsList developersSkills = (ModelsList) request.getAttribute("developersSkill
                     <tbody>
                     <%
                     for(DbModel dbModel : developersProjects) {
-                        DevelopersProjects project = (DevelopersProjects) dbModel;%>
+                        Project project = (Project) dbModel;%>
                          <tr>
-                            <td><%= project.getProject_id() %></td>
-                            <td><%= project.getProject_name() %></td>
+                            <td><%= project.getId() %></td>
+                            <td><%= project.getName() %></td>
                             <td>
                                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                                     <div class="btn-group me-2" role="group" aria-label="Second group">
                                         <form action="/developers/removeProject" method="POST">
                                             <input hidden type="text" name="developer_id" value="<%= model.getId()%>"/>
-                                            <input hidden type="text" name="id" value="<%= project.getProject_id()%>"/>
+                                            <input hidden type="text" name="id" value="<%= project.getId()%>"/>
                                             <input type="submit" class="btn btn-danger" value="Remove" />
                                         </form>
                                     </div>
@@ -156,17 +156,17 @@ ModelsList developersSkills = (ModelsList) request.getAttribute("developersSkill
                     <tbody>
                     <%
                     for(DbModel dbModel : developersSkills) {
-                        DevelopersSkills skill = (DevelopersSkills) dbModel;%>
+                        Skill skill = (Skill) dbModel;%>
                          <tr>
-                            <td><%= skill.getSkill_id() %></td>
-                            <td><%= skill.getSkill_language() %></td>
-                            <td><%= skill.getSkill_level() %></td>
+                            <td><%= skill.getId() %></td>
+                            <td><%= skill.getLanguage() %></td>
+                            <td><%= skill.getLevel() %></td>
                             <td>
                                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                                     <div class="btn-group me-2" role="group" aria-label="Second group">
                                         <form action="/developers/removeSkill" method="POST">
                                             <input hidden type="text" name="developer_id" value="<%= model.getId()%>"/>
-                                            <input hidden type="text" name="id" value="<%= skill.getSkill_id()%>"/>
+                                            <input hidden type="text" name="id" value="<%= skill.getId()%>"/>
                                             <input type="submit" class="btn btn-danger" value="Remove" />
                                         </form>
                                     </div>

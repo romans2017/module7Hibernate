@@ -23,7 +23,7 @@ public class CompanyQuery extends AbstractQuery {
     }
 
     @Override
-    protected String getTableName() {
+    public String getTableName() {
         return "companies";
     }
 
@@ -33,7 +33,7 @@ public class CompanyQuery extends AbstractQuery {
     }
 
     @Override
-    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+    public ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
 
         ModelsList list = new ModelsList();
         while (resultSet.next()) {

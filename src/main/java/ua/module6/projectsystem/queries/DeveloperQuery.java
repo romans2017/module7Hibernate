@@ -7,6 +7,7 @@ import ua.module6.projectsystem.models.ModelsList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class DeveloperQuery extends AbstractQuery {
     private static DeveloperQuery instance;
@@ -23,7 +24,7 @@ public class DeveloperQuery extends AbstractQuery {
     }
 
     @Override
-    protected String getTableName() {
+    public String getTableName() {
         return "developers";
     }
 
@@ -33,7 +34,7 @@ public class DeveloperQuery extends AbstractQuery {
     }
 
     @Override
-    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+    public ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
@@ -53,6 +54,18 @@ public class DeveloperQuery extends AbstractQuery {
         return list;
     }
 
+    public int addToProjects(Map<String, Integer> mapPrimaryKeys) {
+        return super.addToBindingTable("developers_projects", mapPrimaryKeys);
+    }
+
+    public int removeFromProjects(Map<String, Integer> mapPrimaryKeys) {
+        return super.removeFromBindingTable("developers_projects", mapPrimaryKeys);
+    }
+
+    public ModelsList getFromProjects(Map<String, Integer> mapPrimaryKeys) throws SQLException {
+        return super.getFromBindingTable(ProjectQuery.getInstance(dbConnector),"developers_projects", "project_id", mapPrimaryKeys);
+    }
+
     @Override
     public StringBuilder getAdvancedMainRequest() {
 
@@ -66,7 +79,6 @@ public class DeveloperQuery extends AbstractQuery {
                 .append(" JOIN companies ON ")
                 .append(getTableName())
                 .append(".company_id = companies.id");
-
     }
 
 }

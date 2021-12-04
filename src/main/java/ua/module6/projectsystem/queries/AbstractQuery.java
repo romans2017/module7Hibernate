@@ -16,11 +16,7 @@ abstract class AbstractQuery implements Query {
     protected final Set<Map.Entry<String, Integer>> mappingFieldsColumnTypes;
     protected final Set<Map.Entry<String, Integer>> mappingFieldsColumnTypesForReading;
 
-    abstract protected String getTableName();
-
     abstract protected Class<? extends DbModel> getTableClass();
-
-    abstract protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException;
 
     protected AbstractQuery(DbConnector dbConnector) {
         this.dbConnector = dbConnector;
@@ -122,7 +118,7 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public int update(DbModel dbModel, Integer ...primaryKeys) {
+    public int update(DbModel dbModel, Integer... primaryKeys) {
 
         Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypes;
 
@@ -156,7 +152,7 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public int delete(Integer ...primaryKeys) {
+    public int delete(Integer... primaryKeys) {
 
         String requestString = "DELETE FROM " +
                 getTableName() +
@@ -170,11 +166,9 @@ abstract class AbstractQuery implements Query {
         });
     }
 
-    private ResultSet readDb(StringBuilder mainRequest, Map<String, Object> simpleFilter) {
-        Set<Map.Entry<String, Integer>> entries = mappingFieldsColumnTypesForReading;
-
+    private ResultSet readDb(StringBuilder mainRequest, Map<String, ?> simpleFilter, Set<Map.Entry<String, Integer>> mappingFieldsColumnTypesForReading) {
         StringBuilder whereStringBuilder = new StringBuilder();
-        Set<Map.Entry<String, Integer>> filteredEntries = entries.stream()
+        Set<Map.Entry<String, Integer>> filteredEntries = mappingFieldsColumnTypesForReading.stream()
                 .filter(item -> simpleFilter.containsKey(item.getKey()))
                 .peek(item -> whereStringBuilder.append(item.getKey()).append("=").append("?").append(" and "))
                 .collect(Collectors.toSet());
@@ -213,8 +207,81 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public ModelsList get(Map<String, Object> simpleFilter) throws SQLException {
-        return normalizeSqlResponse(readDb(getAdvancedMainRequest(), simpleFilter));
+    public ModelsList get(Map<String, ?> simpleFilter) throws SQLException {
+        return normalizeSqlResponse(readDb(getAdvancedMainRequest(), simpleFilter, this.mappingFieldsColumnTypesForReading));
     }
 
+    public int addToBindingTable(String bindingTableName, Map<String, Integer> mapPrimaryKeys) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("INSERT INTO ")
+                .append(bindingTableName)
+                .append("(");
+        mapPrimaryKeys.keySet().forEach(item -> stringBuilder.append(item).append(","));
+        stringBuilder
+                .delete(stringBuilder.length() - 1, stringBuilder.length())
+                .append(") VALUES (");
+        mapPrimaryKeys.keySet().forEach(item -> stringBuilder.append("?,"));
+        stringBuilder
+                .delete(stringBuilder.length() - 1, stringBuilder.length())
+                .append(")");
+
+        String requestString = stringBuilder.toString();
+        return dbConnector.executeStatementUpdate(requestString, preparedStatement -> {
+            int parameterIndex = 1;
+            for (Map.Entry<String, Integer> entry : mapPrimaryKeys.entrySet()) {
+                try {
+                    preparedStatement.setInt(parameterIndex, entry.getValue());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                parameterIndex++;
+            }
+        });
+    }
+
+    public int removeFromBindingTable(String bindingTableName, Map<String, Integer> mapPrimaryKeys) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("DELETE FROM ")
+                .append(bindingTableName)
+                .append(" WHERE ");
+        mapPrimaryKeys.keySet().forEach(item -> stringBuilder.append(item).append("=? and "));
+        stringBuilder
+                .delete(stringBuilder.length() - 4, stringBuilder.length());
+        String requestString = stringBuilder.toString();
+        return dbConnector.executeStatementUpdate(requestString, preparedStatement -> {
+            int parameterIndex = 1;
+            for (Map.Entry<String, Integer> entry : mapPrimaryKeys.entrySet()) {
+                try {
+                    preparedStatement.setInt(parameterIndex, entry.getValue());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                parameterIndex++;
+            }
+        });
+    }
+
+    public ModelsList getFromBindingTable(Query sourceQuery, String bindingTableName, String bindingFieldName, Map<String, Integer> mapPrimaryKeys) throws SQLException {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT ")
+                .append(sourceQuery.getTableName())
+                .append(".*")
+                .append(" FROM ")
+                .append(bindingTableName)
+                .append(" JOIN ")
+                .append(sourceQuery.getTableName())
+                .append(" ON ")
+                .append(bindingTableName)
+                .append(".")
+                .append(bindingFieldName)
+                .append("=")
+                .append(sourceQuery.getTableName())
+                .append(".id");
+        Set<Map.Entry<String, Integer>> mappingFieldsColumnTypesForReading = new HashSet<>();
+        mapPrimaryKeys.forEach((key, value) -> mappingFieldsColumnTypesForReading.add(Map.entry(key, Types.INTEGER)));
+
+        return sourceQuery.normalizeSqlResponse(readDb(stringBuilder, mapPrimaryKeys, mappingFieldsColumnTypesForReading));
+    }
 }

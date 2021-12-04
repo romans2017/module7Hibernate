@@ -24,7 +24,7 @@ public class ProjectQuery extends AbstractQuery {
     }
 
     @Override
-    protected String getTableName() {
+    public String getTableName() {
         return "projects";
     }
 
@@ -34,7 +34,7 @@ public class ProjectQuery extends AbstractQuery {
     }
 
     @Override
-    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+    public ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
         ModelsList list = new ModelsList();
 
         while (resultSet.next()) {
@@ -75,5 +75,4 @@ public class ProjectQuery extends AbstractQuery {
                 .append(".customer_id = customers.id");
 
     }
-
 }

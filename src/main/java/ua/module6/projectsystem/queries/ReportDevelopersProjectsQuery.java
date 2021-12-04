@@ -24,7 +24,7 @@ public class ReportDevelopersProjectsQuery extends AbstractQuery  {
     }
 
     @Override
-    protected String getTableName() {
+    public String getTableName() {
         return "developers_projects";
     }
 
@@ -34,7 +34,7 @@ public class ReportDevelopersProjectsQuery extends AbstractQuery  {
     }
 
     @Override
-    protected ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
+    public ModelsList normalizeSqlResponse(ResultSet resultSet) throws SQLException {
 
         ModelsList list = new ModelsList();
         while (resultSet.next()) {
