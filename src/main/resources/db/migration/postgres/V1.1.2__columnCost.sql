@@ -1,9 +1,8 @@
-ALTER TABLE public.projects
-	ADD COLUMN cost integer;
+ALTER TABLE projects ADD IF NOT EXISTS cost integer;
 
-UPDATE
-	public.projects
-SET cost = random() * 1000000
+UPDATE 
+	projects 
+SET cost = random() * 1000000 
 WHERE cost IS NULL;
 
 ALTER TABLE public.projects

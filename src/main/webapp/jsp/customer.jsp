@@ -1,5 +1,5 @@
 <%@ page language="java"
-import="ua.module6.projectsystem.models.*"
+import="ua.module7.hibernate.models.*"
 %>
 <% Customer model = (Customer) request.getAttribute("model"); %>
 

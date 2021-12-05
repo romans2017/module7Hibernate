@@ -4,8 +4,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ua.goit.module6</groupId>
-  <artifactId>db</artifactId>
+  <groupId>ua.goit.module7</groupId>
+  <artifactId>hibernate</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>8.0.3</version>
+      <version>8.1.0</version>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>
