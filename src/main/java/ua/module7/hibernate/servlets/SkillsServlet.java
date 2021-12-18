@@ -4,51 +4,68 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ua.module7.hibernate.models.DbModel;
-import ua.module7.hibernate.models.Developer;
-import ua.module7.hibernate.models.ModelsList;
-import ua.module7.hibernate.models.Skill;
-import ua.module7.hibernate.queries.Query;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.pojo.Developer;
+import ua.module7.hibernate.pojo.Skill;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.util.Map;
 
 @WebServlet("/skills/*")
-public class SkillsServlet extends AbstractServlet {
+public class SkillsServlet extends AbstractServlet<Skill> {
 
-    private Query serviceQueryDeveloper;
+    private Dao<Developer> serviceDaoDeveloper;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void init() {
-        this.serviceQuery = (Query) getServletContext().getAttribute("skillQuery");
-        this.serviceQueryDeveloper = (Query) getServletContext().getAttribute("developerQuery");
-        this.classDbModel = Skill.class;
+    public void init() throws ServletException {
+        super.init();
+        this.serviceDao = (Dao<Skill>) getServletContext().getAttribute("skillDao");
+        this.serviceDaoDeveloper = (Dao<Developer>) getServletContext().getAttribute("developerDao");
         this.jspView = "skills.jsp";
         this.jspEdit = "skill.jsp";
         this.redirectPath = "skills";
     }
 
-    protected void createEditModel(HttpServletRequest req) throws NumberFormatException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        Skill skill = new Skill();
-        skill.setId(id);
-        skill.setLanguage(req.getParameter("language"));
-        skill.setLevel(req.getParameter("level"));
+    @Override
+    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id = Integer.parseInt(req.getParameter("id"));
+
         if (id == 0) {
-            serviceQuery.create(skill);
+            Skill skill = new Skill()
+                    .setLanguage(req.getParameter("language"))
+                    .setLevel(req.getParameter("level"));
+            serviceDao.create(skill);
         } else {
-            serviceQuery.update(skill, id);
+            Skill skill = serviceDao.read(id);
+            if (skill != null) {
+                skill.setLanguage(req.getParameter("language"))
+                        .setLevel(req.getParameter("level"));
+                serviceDao.update(skill);
+            }
         }
     }
 
     @Override
-    protected void removeModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Integer skill_id = Integer.parseInt(req.getParameter("id"));
-        serviceQuery.removeFromBindingTable("developers_skills", Map.of("skill_id", skill_id));
-        serviceQuery.delete(skill_id);
-        redirect(resp);
+    protected void postEditRequest(Skill model, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("model", model);
+        req.setAttribute("developerList", ServletService.getAllModels(serviceDaoDeveloper, Developer.class));
+        resp.reset();
+        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
+    }
+
+    private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Skill skill = serviceDao.read(Integer.parseInt(req.getParameter("skill_id")));
+        Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
+        skill = addRemoveBindFromMappedToOwner(developer, skill, serviceDaoDeveloper, developer::addSkill);
+        postEditRequest(skill, req, resp);
+    }
+
+    private void removeDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Skill skill = serviceDao.read(Integer.parseInt(req.getParameter("skill_id")));
+        Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
+        skill = addRemoveBindFromMappedToOwner(developer, skill, serviceDaoDeveloper, developer::removeSkill);
+        postEditRequest(skill, req, resp);
     }
 
     @Override
@@ -62,42 +79,8 @@ public class SkillsServlet extends AbstractServlet {
                 case "/addDeveloper" -> addDeveloper(req, resp);
                 case "/removeDeveloper" -> removeDeveloper(req, resp);
             }
-        } catch (SQLException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException throwables) {
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    @Override
-    protected void postEditRequest(DbModel dbModel, HttpServletRequest req, HttpServletResponse resp) throws SQLException, NoSuchFieldException, IllegalAccessException, ServletException, IOException {
-        req.setAttribute("model", dbModel);
-        req.setAttribute("developersSkills", getDevelopers(dbModel));
-        req.setAttribute("developerList", getAllModels(serviceQueryDeveloper));
-        resp.reset();
-        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
-    }
-
-    private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Integer developer_id = Integer.parseInt(req.getParameter("developer_id"));
-        Integer skill_id = Integer.parseInt(req.getParameter("skill_id"));
-        serviceQuery.addToBindingTable("developers_skills", Map.of("developer_id", developer_id, "skill_id", skill_id));
-
-        DbModel skill = getDbModel(skill_id, Skill.class);
-        postEditRequest(skill, req, resp);
-    }
-
-    private void removeDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        Integer skill_id = Integer.parseInt(req.getParameter("skill_id"));
-        serviceQuery.removeFromBindingTable("developers_skills", Map.of("developer_id", id, "skill_id", skill_id));
-
-        DbModel skill = getDbModel(skill_id, Developer.class);
-        postEditRequest(skill, req, resp);
-    }
-
-    private ModelsList getDevelopers(DbModel dbModel) throws NoSuchFieldException, IllegalAccessException, SQLException {
-        return serviceQuery.getFromBindingTable(serviceQueryDeveloper,
-                "developers_skills",
-                "developer_id",
-                Map.of("skill_id", (Integer) dbModel.get("id")));
     }
 }

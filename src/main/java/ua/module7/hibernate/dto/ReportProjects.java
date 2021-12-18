@@ -1,8 +1,8 @@
-package ua.module7.hibernate.models;
+package ua.module7.hibernate.dto;
 
 import java.util.Date;
 
-public class ReportProjects extends AbstractModel{
+public class ReportProjects {
 
     private Integer projectId;
     private String projectName;

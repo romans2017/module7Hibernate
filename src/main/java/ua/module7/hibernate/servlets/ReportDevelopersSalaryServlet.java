@@ -4,49 +4,56 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ua.module7.hibernate.models.ModelsList;
-import ua.module7.hibernate.models.ReportDevelopersSalary;
-import ua.module7.hibernate.queries.Query;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.dao.DeveloperDao;
+import ua.module7.hibernate.pojo.Developer;
+import ua.module7.hibernate.pojo.Project;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
+import java.util.ArrayList;
 
-@WebServlet("/reportDevelopersSalary/*")
-public class ReportDevelopersSalaryServlet extends AbstractServlet {
+@WebServlet("/reportDevelopers/salary/*")
+public class ReportDevelopersSalaryServlet<E> extends AbstractServlet<Developer> {
 
-    private Query serviceQueryProjects;
+    protected Dao<Project> serviceDaoProjects;
+    protected String title;
 
     @Override
-    public void init() {
-        this.serviceQuery = (Query) getServletContext().getAttribute("reportDevelopersSalaryQuery");
-        this.serviceQueryProjects = (Query) getServletContext().getAttribute("projectQuery");
-        this.classDbModel = ReportDevelopersSalary.class;
+    @SuppressWarnings("unchecked")
+    public void init() throws ServletException {
+        super.init();
+        this.serviceDao = (Dao<Developer>) getServletContext().getAttribute("developerDao");
+        this.serviceDaoProjects = (Dao<Project>) getServletContext().getAttribute("projectDao");
         this.jspView = "reportDevelopersSalary.jsp";
         this.jspEdit = "";
-        this.redirectPath = "";
+        this.redirectPath = "salary";
+        this.title = "Developers' salary by project";
     }
 
-    private void viewReport(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("projectList", getAllModels(serviceQueryProjects));
+    protected void viewReport(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("projectList", ServletService.getAllModels(serviceDaoProjects, Project.class));
+        req.setAttribute("title", title);
+        req.setAttribute("localUrl", redirectPath);
         req.getRequestDispatcher("/jsp/" + jspView).forward(req, resp);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("modelsList", new ModelsList());
+        req.setAttribute("modelsList", new ArrayList<Developer>() {});
         viewReport(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            req.setAttribute("modelsList", serviceQuery.get(Map.of("project_id", Integer.parseInt(req.getParameter("project_id")))));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        req.setAttribute("modelsList", ((DeveloperDao) serviceDao).readDevelopersByProject(Integer.parseInt(req.getParameter("project_id"))));
         viewReport(req, resp);
     }
 
-    protected void createEditModel(HttpServletRequest req) throws NumberFormatException {}
+    @Override
+    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+    }
+
+    @Override
+    protected void postEditRequest(Developer model, HttpServletRequest req, HttpServletResponse resp) {
+    }
 }

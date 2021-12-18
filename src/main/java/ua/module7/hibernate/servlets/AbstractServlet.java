@@ -4,67 +4,52 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ua.module7.hibernate.models.DbModel;
-import ua.module7.hibernate.models.ModelsList;
-import ua.module7.hibernate.queries.Query;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.pojo.Pojo;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
-abstract class AbstractServlet extends HttpServlet {
+abstract class AbstractServlet<E extends Pojo> extends HttpServlet {
 
-    protected Query serviceQuery;
+    protected Dao<E> serviceDao;
     protected String jspView;
     protected String jspEdit;
     protected String redirectPath;
-    protected Class<? extends DbModel> classDbModel;
+    protected Class<E> classModel;
 
-    protected ModelsList getAllModels(Query sQuery) {
-        ModelsList modelsList = new ModelsList();
-        try {
-            modelsList = sQuery.getAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return modelsList;
+    @Override
+    @SuppressWarnings("unchecked")
+    public void init() throws ServletException {
+        Type[] params = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();
+        classModel = (Class<E>) params[0];
     }
 
     protected void redirect(HttpServletResponse resp) throws IOException {
-        resp.sendRedirect("/" + redirectPath);
+        resp.sendRedirect(getServletContext().getContextPath() + "/" + redirectPath);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("modelsList", getAllModels(serviceQuery));
+        req.setAttribute("modelsList", ServletService.getAllModels(serviceDao, classModel));
         req.getRequestDispatcher("/jsp/" + jspView).forward(req, resp);
     }
 
-    protected DbModel getDbModel(Integer id, Class<? extends DbModel> classModel) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        ModelsList modelsList;
-        modelsList = serviceQuery.get(Map.of("id", id));
-        if (modelsList.size() > 0) {
-            return modelsList.get(0);
-        } else {
-            Constructor<? extends DbModel> constructor = classModel.getConstructor();
-            return constructor.newInstance();
-        }
-    }
+    @Override
+    abstract protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
 
-    abstract protected void createEditModel(HttpServletRequest req) throws NumberFormatException;
+    abstract protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException;
 
-    protected void postEditRequest(DbModel dbModel, HttpServletRequest req, HttpServletResponse resp) throws SQLException, NoSuchFieldException, IllegalAccessException, ServletException, IOException {
-        req.setAttribute("model", dbModel);
-        resp.reset();
-        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
-    }
+    abstract protected void postEditRequest(E model, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
 
-    protected void newEditModel(HttpServletRequest req, HttpServletResponse resp) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException, ServletException, IOException {
+    protected void newEditModel(HttpServletRequest req, HttpServletResponse resp) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, ServletException, IOException {
         String url = req.getPathInfo();
-        DbModel model = getDbModel(Integer.parseInt(req.getParameter("id")), classDbModel);
-        if (!model.get("id").toString().equals("0") || url.equals("/new")) {
+        E model = ServletService.getDbModel(Integer.parseInt(req.getParameter("id")), serviceDao, classModel);
+        if (model.getId() != 0 || url.equals("/new")) {
             postEditRequest(model, req, resp);
         } else {
             redirect(resp);
@@ -72,27 +57,42 @@ abstract class AbstractServlet extends HttpServlet {
     }
 
     protected void removeModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Integer developer_id = Integer.parseInt(req.getParameter("id"));
-        serviceQuery.delete(developer_id);
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        E entity = serviceDao.read(id);
+        if (entity != null) {
+            serviceDao.delete(entity);
+        }
         redirect(resp);
     }
 
     protected void saveModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        createEditModel(req);
+        createUpdateModel(req);
         redirect(resp);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String url = req.getPathInfo();
-        try {
-            switch (url) {
-                case "/edit", "/new" -> newEditModel(req, resp);
-                case "/remove" -> removeModel(req, resp);
-                case "/save" -> saveModel(req, resp);
-            }
-        } catch (SQLException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException throwables) {
-            throwables.printStackTrace();
+    protected <S extends Pojo> E addRemoveBindFromMappedToOwner(S owner, E mapped, Dao<S> serviceDaoOwner, Consumer<E> func) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        if (mapped != null && owner != null) {
+            func.accept(mapped);
+            serviceDaoOwner.update(owner);
         }
+        if (mapped == null) {
+            Constructor<E> constructor = classModel.getConstructor();
+            mapped = constructor.newInstance().initEmpty();
+        }
+        return mapped;
+    }
+
+    protected <S extends Pojo> E addRemoveBindFromOwnerToMapped(E owner, S mapped, Consumer<S> func) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        if (mapped != null && owner != null) {
+            func.accept(mapped);
+            serviceDao.update(owner);
+        }
+        if (mapped == null) {
+            Constructor<E> constructor = classModel.getConstructor();
+            owner = constructor.newInstance().initEmpty();
+        }
+        return owner;
     }
 }

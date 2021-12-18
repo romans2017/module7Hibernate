@@ -1,5 +1,5 @@
 <%@ page language="java"
-import="ua.module7.hibernate.models.*"
+import="ua.module7.hibernate.pojo.*, java.util.List, java.util.Optional"
 %>
 
 <!DOCTYPE html>
@@ -12,7 +12,7 @@ import="ua.module7.hibernate.models.*"
     <div class="container">
         <jsp:include page="navigation.jsp"/>
         <div class="row">
-            <h2>Report "Java developers"</h2>
+            <h2>Report "<%= request.getAttribute("title")%>"</h2>
         </div>
 
         <div class="row">
@@ -22,22 +22,20 @@ import="ua.module7.hibernate.models.*"
                     <th scope="col">Id</th>
                     <th scope="col">Name</th>
                     <th scope="col">Age</th>
-                    <th scope="col">Language</th>
-                    <th scope="col">Level</th>
+                    <th scope="col">Company</th>
                     <th scope="col">Salary</th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
-                ModelsList modelsList = (ModelsList) request.getAttribute("modelsList");
-                for(DbModel dbModel : modelsList) {
-                    ReportDevelopers model = (ReportDevelopers) dbModel;%>
+                List<Pojo> modelsList = (List<Pojo>) request.getAttribute("modelsList");
+                for(Pojo dbModel : modelsList) {
+                    Developer model = (Developer) dbModel;%>
                      <tr>
-                        <td><%= model.getDeveloper_id() %></td>
-                        <td><%= model.getDeveloper_name() %></td>
+                        <td><%= model.getId() %></td>
+                        <td><%= model.getName() %></td>
                         <td><%= model.getAge() %></td>
-                        <td><%= model.getLanguage() %></td>
-                        <td><%= model.getLevel() %></td>
+                        <td><%= Optional.ofNullable(model.getCompany()).map(Company::getName).orElse("empty") %></td>
                         <td><%= model.getSalary() %></td>
                      </tr>
                 <% } %>

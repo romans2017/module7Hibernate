@@ -1,5 +1,5 @@
 <%@ page language="java"
-import="ua.module7.hibernate.models.*"
+import="ua.module7.hibernate.pojo.*, java.util.List, java.util.Optional"
 %>
 
 <!DOCTYPE html>
@@ -18,9 +18,9 @@ import="ua.module7.hibernate.models.*"
         <div class="row">
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group me-2" role="group" aria-label="Second group">
-                    <form action="/developers/new" method="POST">
-                        <input hidden type="text" name="id" value="0"/>
-                        <input type="submit" class="btn btn-primary" value="New"/>
+                    <form action="${pageContext.request.contextPath}/developers/new" method="POST" id="newForm">
+                        <input hidden type="text" name="id" value="0" form="newForm"/>
+                        <input type="submit" class="btn btn-primary" value="New" form="newForm"/>
                     </form>
                 </div>
             </div>
@@ -37,25 +37,25 @@ import="ua.module7.hibernate.models.*"
                 </thead>
                 <tbody>
                 <%
-                ModelsList modelsList = (ModelsList) request.getAttribute("modelsList");
-                for(DbModel dbModel : modelsList) {
+                List<Pojo> modelsList = (List<Pojo>) request.getAttribute("modelsList");
+                for(Pojo dbModel : modelsList) {
                     Developer model = (Developer) dbModel;%>
                      <tr>
                         <td><%= model.getId() %></td>
                         <td><%= model.getName() %></td>
                         <td><%= model.getAge() %></td>
-                        <td><%= model.getCompany_name() %></td>
+                        <td><%= Optional.ofNullable(model.getCompany()).map(Company::getName).orElse("empty") %></td>
                         <td><%= model.getSalary() %></td>
                         <td>
                             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                                 <div class="btn-group me-2" role="group" aria-label="Second group">
-                                    <form action="/developers/edit" method="POST">
-                                        <input hidden type="text" name="id" value="<%= model.getId() %>"/>
-                                        <input type="submit" class="btn btn-warning" value="Edit"/>
+                                    <form action="${pageContext.request.contextPath}/developers/edit" method="POST" id="editForm<%= model.getId() %>">
+                                        <input hidden type="text" name="id" value="<%= model.getId() %>" form="editForm<%= model.getId() %>"/>
+                                        <input type="submit" class="btn btn-warning" value="Edit" form="editForm<%= model.getId() %>"/>
                                     </form>
-                                    <form action="/developers/remove" method="POST">
-                                        <input hidden type="text" name="id" value="<%= model.getId() %>"/>
-                                        <input type="submit" class="btn btn-danger" value="Remove" />
+                                    <form action="${pageContext.request.contextPath}/developers/remove" method="POST" id="removeForm<%= model.getId() %>">
+                                        <input hidden type="text" name="id" value="<%= model.getId() %>" form="removeForm<%= model.getId() %>"/>
+                                        <input type="submit" class="btn btn-danger" value="Remove" form="removeForm<%= model.getId() %>"/>
                                     </form>
                                 </div>
                             </div>

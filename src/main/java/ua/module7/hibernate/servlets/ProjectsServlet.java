@@ -4,43 +4,39 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ua.module7.hibernate.queries.Query;
-import ua.module7.hibernate.models.*;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.pojo.*;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 @WebServlet("/projects/*")
-public class ProjectsServlet extends AbstractServlet {
+public class ProjectsServlet extends AbstractServlet<Project> {
 
-    private Query serviceQueryCompany;
-    private Query serviceQueryCustomer;
-    private Query serviceQueryDeveloper;
+    private Dao<Customer> serviceDaoCustomer;
+    private Dao<Developer> serviceDaoDeveloper;
+    private Dao<Company> serviceDaoCompany;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void init() {
-        this.serviceQuery = (Query) getServletContext().getAttribute("projectQuery");
-        this.serviceQueryCompany = (Query) getServletContext().getAttribute("companyQuery");
-        this.serviceQueryCustomer = (Query) getServletContext().getAttribute("customerQuery");
-        this.serviceQueryDeveloper = (Query) getServletContext().getAttribute("developerQuery");
-        this.classDbModel = Project.class;
+    public void init() throws ServletException {
+        super.init();
+        this.serviceDao = (Dao<Project>) getServletContext().getAttribute("projectDao");
+        this.serviceDaoDeveloper = (Dao<Developer>) getServletContext().getAttribute("developerDao");
+        this.serviceDaoCustomer = (Dao<Customer>) getServletContext().getAttribute("customerDao");
+        this.serviceDaoCompany = (Dao<Company>) getServletContext().getAttribute("companyDao");
         this.jspView = "projects.jsp";
         this.jspEdit = "project.jsp";
         this.redirectPath = "projects";
     }
 
-    protected void createEditModel(HttpServletRequest req) throws NumberFormatException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        Project project = new Project();
-        project.setId(id);
-        project.setName(req.getParameter("name"));
-        project.setCost(Integer.parseInt(req.getParameter("cost")));
-        project.setDescription(req.getParameter("description"));
+    @Override
+    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id = Integer.parseInt(req.getParameter("id"));
+
         SimpleDateFormat format = new SimpleDateFormat();
         format.applyPattern("yyyy-MM-dd");
         Date docDate = null;
@@ -49,22 +45,77 @@ public class ProjectsServlet extends AbstractServlet {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        project.setCreation_date(docDate);
-        project.setCustomer_id(Integer.parseInt(req.getParameter("customer_id")));
-        project.setCompany_id(Integer.parseInt(req.getParameter("company_id")));
+
         if (id == 0) {
-            serviceQuery.create(project);
+            Project project = new Project()
+                    .setName(req.getParameter("name"))
+                    .setCost(Integer.parseInt(req.getParameter("cost")))
+                    .setCreationDate(docDate)
+                    .setDescription(req.getParameter("name"));
+            serviceDao.create(project);
+            Company company = serviceDaoCompany.read(Integer.parseInt(req.getParameter("company_id")));
+            if (company != null) {
+                project.addCompany(company);
+            }
+            Customer customer = serviceDaoCustomer.read(Integer.parseInt(req.getParameter("customer_id")));
+            if (customer != null) {
+                project.addCustomer(customer);
+            }
+            if (customer != null || company != null) {
+                serviceDao.update(project);
+            }
         } else {
-            serviceQuery.update(project, id);
+            Project project = serviceDao.read(id);
+            if (project != null) {
+                project.setName(req.getParameter("name"))
+                        .setCost(Integer.parseInt(req.getParameter("cost")))
+                        .setCreationDate(docDate)
+                        .setDescription(req.getParameter("name"));
+                Company company = serviceDaoCompany.read(Integer.parseInt(req.getParameter("company_id")));
+                if (company != null) {
+                    project.addCompany(company);
+                } else {
+                    if (project.getCompany() != null) {
+                        project.removeCompany(project.getCompany());
+                    }
+                }
+                Customer customer = serviceDaoCustomer.read(Integer.parseInt(req.getParameter("customer_id")));
+                if (customer != null) {
+                    project.addCustomer(customer);
+                } else {
+                    if (project.getCustomer() != null) {
+                        project.removeCustomer(project.getCustomer());
+                    }
+                }
+                if (customer != null || company != null) {
+                    serviceDao.update(project);
+                }
+            }
         }
     }
 
     @Override
-    protected void removeModel(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Integer project_id = Integer.parseInt(req.getParameter("id"));
-        serviceQuery.removeFromBindingTable("developers_projects", Map.of("project_id", project_id));
-        serviceQuery.delete(project_id);
-        redirect(resp);
+    protected void postEditRequest(Project model, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("model", model);
+        req.setAttribute("developerList", ServletService.getAllModels(serviceDaoDeveloper, Developer.class));
+        req.setAttribute("customerList", ServletService.getAllModels(serviceDaoCustomer, Customer.class));
+        req.setAttribute("companyList", ServletService.getAllModels(serviceDaoCompany, Company.class));
+        resp.reset();
+        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
+    }
+
+    private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Project project = serviceDao.read(Integer.parseInt(req.getParameter("project_id")));
+        Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
+        project = addRemoveBindFromMappedToOwner(developer, project, serviceDaoDeveloper, developer::addProject);
+        postEditRequest(project, req, resp);
+    }
+
+    private void removeDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Project project = serviceDao.read(Integer.parseInt(req.getParameter("project_id")));
+        Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
+        project = addRemoveBindFromMappedToOwner(developer, project, serviceDaoDeveloper, developer::removeProject);
+        postEditRequest(project, req, resp);
     }
 
     @Override
@@ -78,44 +129,8 @@ public class ProjectsServlet extends AbstractServlet {
                 case "/addDeveloper" -> addDeveloper(req, resp);
                 case "/removeDeveloper" -> removeDeveloper(req, resp);
             }
-        } catch (SQLException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException throwables) {
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    @Override
-    protected void postEditRequest(DbModel dbModel, HttpServletRequest req, HttpServletResponse resp) throws SQLException, NoSuchFieldException, IllegalAccessException, ServletException, IOException {
-        req.setAttribute("model", dbModel);
-        req.setAttribute("companyList", getAllModels(serviceQueryCompany));
-        req.setAttribute("customerList", getAllModels(serviceQueryCustomer));
-        req.setAttribute("developerList", getAllModels(serviceQueryDeveloper));
-        req.setAttribute("developersProjects", getDevelopers(dbModel));
-        resp.reset();
-        req.getRequestDispatcher("/jsp/" + jspEdit).forward(req, resp);
-    }
-
-    private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Integer developer_id = Integer.parseInt(req.getParameter("developer_id"));
-        Integer project_id = Integer.parseInt(req.getParameter("project_id"));
-        serviceQuery.addToBindingTable("developers_projects", Map.of("developer_id", developer_id, "project_id", project_id));
-
-        DbModel project = getDbModel(project_id, Skill.class);
-        postEditRequest(project, req, resp);
-    }
-
-    private void removeDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        Integer project_id = Integer.parseInt(req.getParameter("project_id"));
-        serviceQuery.removeFromBindingTable("developers_projects", Map.of("developer_id", id, "project_id", project_id));
-
-        DbModel project = getDbModel(project_id, Developer.class);
-        postEditRequest(project, req, resp);
-    }
-
-    private ModelsList getDevelopers(DbModel dbModel) throws NoSuchFieldException, IllegalAccessException, SQLException {
-        return serviceQuery.getFromBindingTable(serviceQueryDeveloper,
-                "developers_projects",
-                "developer_id",
-                Map.of("project_id", (Integer) dbModel.get("id")));
     }
 }

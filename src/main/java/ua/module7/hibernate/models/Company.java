@@ -7,9 +7,12 @@ public class Company extends AbstractModel {
     private String country;
 
     public Company() {
-        id = 0;
-        name = "";
-        country = "";
+    }
+
+    public Company(Integer id, String name, String country) {
+        this.id = id;
+        this.name = name;
+        this.country = country;
     }
 
     public Integer getId() {

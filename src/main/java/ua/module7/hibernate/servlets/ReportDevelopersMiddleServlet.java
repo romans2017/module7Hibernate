@@ -1,21 +1,33 @@
 package ua.module7.hibernate.servlets;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import ua.module7.hibernate.models.ReportDevelopers;
-import ua.module7.hibernate.queries.Query;
+import jakarta.servlet.http.HttpServletResponse;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.dao.DeveloperDao;
+import ua.module7.hibernate.pojo.Developer;
 
-@WebServlet("/reportDevelopersMiddle")
-public class ReportDevelopersMiddleServlet extends AbstractServlet {
+import java.io.IOException;
+
+@WebServlet("/reportDevelopers/middle")
+public class ReportDevelopersMiddleServlet extends ReportDevelopersJavaServlet<Developer> {
 
     @Override
-    public void init() {
-        this.serviceQuery = (Query) getServletContext().getAttribute("reportDevelopersMiddleQuery");
-        this.classDbModel = ReportDevelopers.class;
-        this.jspView = "reportDevelopersMiddle.jsp";
+    @SuppressWarnings("unchecked")
+    public void init() throws ServletException {
+        super.init();
+        this.serviceDao = (Dao<Developer>) getServletContext().getAttribute("developerDao");
+        this.jspView = "reportDevelopers.jsp";
         this.jspEdit = "";
         this.redirectPath = "";
     }
 
-    protected void createEditModel(HttpServletRequest req) throws NumberFormatException {}
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("modelsList", ((DeveloperDao) serviceDao).readMiddleDevelopers());
+        req.setAttribute("title", "Middle-level developers");
+        req.getRequestDispatcher("/jsp/" + jspView).forward(req, resp);
+    }
+
 }

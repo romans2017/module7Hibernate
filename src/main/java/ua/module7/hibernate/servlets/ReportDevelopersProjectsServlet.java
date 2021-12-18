@@ -1,17 +1,29 @@
 package ua.module7.hibernate.servlets;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import ua.module7.hibernate.models.ReportDevelopersProjects;
-import ua.module7.hibernate.queries.Query;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import ua.module7.hibernate.pojo.Developer;
+import ua.module7.hibernate.pojo.Project;
 
-@WebServlet("/reportDevelopersProjects/*")
-public class ReportDevelopersProjectsServlet extends ReportDevelopersSalaryServlet {
+import java.io.IOException;
+
+@WebServlet("/reportDevelopers/project/*")
+public class ReportDevelopersProjectsServlet extends ReportDevelopersSalaryServlet<Developer> {
 
     @Override
-    public void init() {
+    public void init() throws ServletException {
         super.init();
-        this.serviceQuery = (Query) getServletContext().getAttribute("reportDevelopersProjectsQuery");
-        this.classDbModel = ReportDevelopersProjects.class;
-        this.jspView = "reportDevelopersProjects.jsp";
+        this.redirectPath = "project";
+        this.title = "Developers by project";
+    }
+
+    @Override
+    protected void viewReport(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("projectList", ServletService.getAllModels(serviceDaoProjects, Project.class));
+        req.setAttribute("title", title);
+        req.setAttribute("localUrl", redirectPath);
+        req.getRequestDispatcher("/jsp/" + jspView).forward(req, resp);
     }
 }

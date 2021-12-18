@@ -1,21 +1,44 @@
 package ua.module7.hibernate.servlets;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import ua.module7.hibernate.models.ReportDevelopers;
-import ua.module7.hibernate.queries.Query;
+import jakarta.servlet.http.HttpServletResponse;
+import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.dao.DeveloperDao;
+import ua.module7.hibernate.pojo.Developer;
 
-@WebServlet("/reportDevelopersJava")
-public class ReportDevelopersJavaServlet extends AbstractServlet {
+import java.io.IOException;
+
+@WebServlet("/reportDevelopers/java")
+public class ReportDevelopersJavaServlet<E> extends AbstractServlet<Developer> {
 
     @Override
-    public void init() {
-        this.serviceQuery = (Query) getServletContext().getAttribute("reportDevelopersJavaQuery");
-        this.classDbModel = ReportDevelopers.class;
-        this.jspView = "reportDevelopersJava.jsp";
+    @SuppressWarnings("unchecked")
+    public void init() throws ServletException {
+        super.init();
+        this.serviceDao = (Dao<Developer>) getServletContext().getAttribute("developerDao");
+        this.jspView = "reportDevelopers.jsp";
         this.jspEdit = "";
         this.redirectPath = "";
     }
 
-    protected void createEditModel(HttpServletRequest req) throws NumberFormatException {}
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("modelsList", ((DeveloperDao) serviceDao).readJavaDevelopers());
+        req.setAttribute("title", "Java developers");
+        req.getRequestDispatcher("/jsp/" + jspView).forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    }
+
+    @Override
+    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+    }
+
+    @Override
+    protected void postEditRequest(Developer model, HttpServletRequest req, HttpServletResponse resp) {
+    }
 }

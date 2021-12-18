@@ -1,5 +1,5 @@
 <%@ page language="java"
-import="ua.module7.hibernate.models.*"
+import="ua.module7.hibernate.pojo.*, java.util.List"
 %>
 
 <!DOCTYPE html>
@@ -27,14 +27,14 @@ import="ua.module7.hibernate.models.*"
                 </thead>
                 <tbody>
                 <%
-                ModelsList modelsList = (ModelsList) request.getAttribute("modelsList");
-                for(DbModel dbModel : modelsList) {
-                    ReportProjects model = (ReportProjects) dbModel;%>
+                List<Pojo> modelsList = (List<Pojo>) request.getAttribute("modelsList");
+                for(Pojo dbModel : modelsList) {
+                    Project model = (Project) dbModel;%>
                      <tr>
-                        <td><%= model.getProject_id() %></td>
-                        <td><%= model.getProject_name() %></td>
-                        <td><%= model.getCreation_date() %></td>
-                        <td><%= model.getNumber_developers() %></td>
+                        <td><%= model.getId() %></td>
+                        <td><%= model.getName() %></td>
+                        <td><%= model.getCreationDateFormatted() %></td>
+                        <td><%= model.getDevelopers().size() %></td>
                      </tr>
                 <% } %>
                 </tbody>
