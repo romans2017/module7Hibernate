@@ -2,7 +2,7 @@ package ua.module7.hibernate.pojo;
 
 import javax.persistence.*;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "customers")
@@ -21,7 +21,7 @@ public class Customer implements Pojo {
     private String country;
 
     @OneToMany(mappedBy = "customer")
-    private Set<Project> projects = new TreeSet<>();
+    private Set<Project> projects = new HashSet<>();
 
     @Override
     public Pojo initEmpty() {
@@ -95,10 +95,5 @@ public class Customer implements Pojo {
         result = 31 * result + getName().hashCode();
         result = 31 * result + getCountry().hashCode();
         return result;
-    }
-
-    @Override
-    public int compareTo(Pojo o) {
-        return this.getId() - o.getId();
     }
 }

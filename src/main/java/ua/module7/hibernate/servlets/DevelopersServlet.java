@@ -12,7 +12,6 @@ import ua.module7.hibernate.pojo.Skill;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Optional;
 
 @WebServlet("/developers/*")
 public class DevelopersServlet extends AbstractServlet<Developer> {
@@ -81,28 +80,44 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
     private void addProject(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
         Project project = serviceDaoProject.read(Integer.parseInt(req.getParameter("project_id")));
-        developer = addRemoveBindFromOwnerToMapped(developer, project, developer::addProject);
+        if (developer != null) {
+            developer = addRemoveBindFromOwnerToMapped(developer, project, developer::addProject);
+        } else {
+            developer = (Developer) new Developer().initEmpty();
+        }
         postEditRequest(developer, req, resp);
     }
 
     private void removeProject(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
         Project project = serviceDaoProject.read(Integer.parseInt(req.getParameter("project_id")));
-        developer = addRemoveBindFromOwnerToMapped(developer, project, developer::removeProject);
+        if (developer != null) {
+            developer = addRemoveBindFromOwnerToMapped(developer, project, developer::removeProject);
+        } else {
+            developer = (Developer) new Developer().initEmpty();
+        }
         postEditRequest(developer, req, resp);
     }
 
     private void addSkill(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
         Skill skill = serviceDaoSkill.read(Integer.parseInt(req.getParameter("skill_id")));
-        developer = addRemoveBindFromOwnerToMapped(developer, skill, developer::addSkill);
+        if (developer != null) {
+            developer = addRemoveBindFromOwnerToMapped(developer, skill, developer::addSkill);
+        } else {
+            developer = (Developer) new Developer().initEmpty();
+        }
         postEditRequest(developer, req, resp);
     }
 
     private void removeSkill(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
         Skill skill = serviceDaoSkill.read(Integer.parseInt(req.getParameter("skill_id")));
-        developer = addRemoveBindFromOwnerToMapped(developer, skill, developer::removeSkill);
+        if (developer != null) {
+            developer = addRemoveBindFromOwnerToMapped(developer, skill, developer::removeSkill);
+        } else {
+            developer = (Developer) new Developer().initEmpty();
+        }
         postEditRequest(developer, req, resp);
     }
 

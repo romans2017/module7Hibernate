@@ -1,0 +1,6 @@
+ALTER TABLE projects
+    ALTER COLUMN company_id DROP NOT NULL;
+ALTER TABLE projects
+	ALTER COLUMN customer_id DROP NOT NULL;
+ALTER TABLE developers
+    ALTER COLUMN company_id DROP NOT NULL;

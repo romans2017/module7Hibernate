@@ -8,7 +8,8 @@ public class CustomerDao extends AbstractDao<Customer> {
 
     private static CustomerDao instance;
 
-    private CustomerDao() {}
+    private CustomerDao() {
+    }
 
     public static CustomerDao getInstance() {
         if (instance == null) {
@@ -20,11 +21,17 @@ public class CustomerDao extends AbstractDao<Customer> {
     @Override
     public void delete(Customer entity) {
         EntityTransaction transaction = entityManager.getTransaction();
+        ProjectDao dao = ProjectDao.getInstance();
         transaction.begin();
         try {
-            Customer mergedEntity = entityManager.merge(entity);
-            mergedEntity.getProjects().forEach(item -> item.setCustomer(null));
-            entityManager.remove(mergedEntity);
+            Customer customer = read(entity.getId());
+            if (customer != null) {
+                customer.getProjects().forEach(project -> {
+                    project.setCustomer(null);
+                    dao.update(project);
+                });
+                entityManager.remove(customer);
+            }
         } catch (Throwable e) {
             transaction.rollback();
             e.printStackTrace();

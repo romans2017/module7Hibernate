@@ -4,6 +4,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import ua.module7.hibernate.connectors.ConnectorManager;
+import ua.module7.hibernate.connectors.DbType;
 import ua.module7.hibernate.connectors.PersistanceConnecter;
 import ua.module7.hibernate.dao.*;
 
@@ -11,6 +13,11 @@ import ua.module7.hibernate.dao.*;
 public class QueryServiceLoader implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+
+        if (ConnectorManager.connectTo(DbType.POSTGRES) == null) {
+            return;
+        }
+
         PersistanceConnecter.getEntityManager();
 
         ServletContext servletContext = sce.getServletContext();

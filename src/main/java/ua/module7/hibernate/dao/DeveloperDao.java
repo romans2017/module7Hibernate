@@ -7,7 +7,6 @@ import ua.module7.hibernate.pojo.Skill;
 
 import javax.persistence.EntityTransaction;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
 
 public class DeveloperDao extends AbstractDao<Developer> {
@@ -79,13 +78,21 @@ public class DeveloperDao extends AbstractDao<Developer> {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
         try {
-            Developer mergedEntity = entityManager.merge(entity);
-            mergedEntity.getProjects().forEach(project -> project.removeDeveloper(mergedEntity));
-            mergedEntity.getSkills().forEach(skill -> skill.removeDeveloper(mergedEntity));
-            if (mergedEntity.getCompany() != null) {
-                mergedEntity.getCompany().getDevelopers().remove(mergedEntity);
+            Developer developer = read(entity.getId());
+            if (developer != null) {
+                if (developer.getCompany() != null) {
+                    developer.getCompany().removeDeveloper(developer);
+                }
+                developer.getProjects().forEach(project -> {
+                    Project readProject = ProjectDao.getInstance().read(project.getId());
+                    readProject.getDevelopers().remove(developer);
+                });
+                developer.getSkills().forEach(skill -> {
+                    Skill readSkill = SkillDao.getInstance().read(skill.getId());
+                    readSkill.getDevelopers().remove(developer);
+                });
+                entityManager.remove(developer);
             }
-            entityManager.remove(mergedEntity);
         } catch (Throwable e) {
             transaction.rollback();
             e.printStackTrace();

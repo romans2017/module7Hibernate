@@ -1,8 +1,8 @@
 package ua.module7.hibernate.pojo;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Entity
 @Table(name = "developers")
@@ -15,11 +15,7 @@ public class Developer implements Pojo {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "companies_developers",
-            joinColumns = {@JoinColumn(name = "developer_id")},
-            inverseJoinColumns = {@JoinColumn(name = "company_id")}
-    )
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @Column(name = "name", nullable = false, length = 100)
@@ -37,7 +33,7 @@ public class Developer implements Pojo {
             joinColumns = {@JoinColumn(name = "developer_id")},
             inverseJoinColumns = {@JoinColumn(name = "project_id")}
     )
-    private Set<Project> projects = new TreeSet<>();
+    private Set<Project> projects = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -45,7 +41,7 @@ public class Developer implements Pojo {
             joinColumns = {@JoinColumn(name = "developer_id")},
             inverseJoinColumns = {@JoinColumn(name = "skill_id")}
     )
-    private Set<Skill> skills = new TreeSet<>();
+    private Set<Skill> skills = new HashSet<>();
 
     @Override
     public Pojo initEmpty() {
@@ -172,10 +168,5 @@ public class Developer implements Pojo {
         result = 31 * result + getAge().hashCode();
         result = 31 * result + getSalary().hashCode();
         return result;
-    }
-
-    @Override
-    public int compareTo(Pojo o) {
-        return this.getId() - o.getId();
     }
 }

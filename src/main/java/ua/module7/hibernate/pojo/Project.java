@@ -1,7 +1,7 @@
 package ua.module7.hibernate.pojo;
 
 import javax.persistence.*;
-import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -15,19 +15,11 @@ public class Project implements Pojo {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "companies_projects",
-            joinColumns = { @JoinColumn(name = "project_id") },
-            inverseJoinColumns = { @JoinColumn(name = "company_id") }
-    )
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "customers_projects",
-            joinColumns = { @JoinColumn(name = "project_id") },
-            inverseJoinColumns = { @JoinColumn(name = "customer_id") }
-    )
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @Column(name = "name", nullable = false, length = 100)
@@ -40,26 +32,29 @@ public class Project implements Pojo {
     private Integer cost;
 
     @Column(name = "creation_date", nullable = false)
-    private Date creationDate;
+    private LocalDate creationDate;
 
-    @ManyToMany(mappedBy = "projects", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private Set<Developer> developers = new TreeSet<>();
+    @ManyToMany(mappedBy = "projects")
+    private Set<Developer> developers = new HashSet<>();
 
     @Override
     public Pojo initEmpty() {
-        return setId(0).setName("").setCost(0).setCreationDate(new Date()).setDescription("");
+        return setId(0).setName("").setCost(0).setCreationDate(LocalDate.now()).setDescription("");
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
     public String getCreationDateFormatted() {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
-        return dateFormat.format(Optional.ofNullable(getCreationDate()).orElse(new Date()));
+        if (getCreationDate() == null) {
+            return "";
+        } else {
+            return getCreationDate().toString();
+        }
     }
 
-    public Project setCreationDate(Date creationDate) {
+    public Project setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
         return this;
     }
@@ -184,12 +179,7 @@ public class Project implements Pojo {
         result = 31 * result + getName().hashCode();
         result = 31 * result + getDescription().hashCode();
         result = 31 * result + getCost().hashCode();
-        result = 31 * result + getCreationDate().hashCode();
+        result = 31 * result + (getCreationDate() != null ? getCreationDate().hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public int compareTo(Pojo o) {
-        return this.getId() - o.getId();
     }
 }

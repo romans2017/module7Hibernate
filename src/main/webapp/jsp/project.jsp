@@ -1,5 +1,5 @@
 <%@ page language="java"
-import="ua.module7.hibernate.pojo.*, java.util.List, java.util.Optional"
+import="ua.module7.hibernate.pojo.*, java.util.List, java.util.Optional, java.time.LocalDate"
 %>
 <% Project model = (Project) request.getAttribute("model");
 List<Company> companyList = (List<Company>) request.getAttribute("companyList");
@@ -45,7 +45,7 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                         </div>
                         <div class="mb-3">
                             <label for="creation_date" class="form-label">Creation date</label>
-                            <input type="date" class="form-control"
+                            <input type="date" class="form-control" required
                                    value=<%= model.getCreationDate()%>
                                    name="creation_date" id="creation_date" placeholder="Creation date" form="saveForm">
                         </div>

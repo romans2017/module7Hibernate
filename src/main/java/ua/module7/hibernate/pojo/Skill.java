@@ -1,7 +1,7 @@
 package ua.module7.hibernate.pojo;
 
 import javax.persistence.*;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,9 +20,8 @@ public class Skill implements Pojo {
     @Column(name = "level", nullable = false, length = 30)
     private String level;
 
-    //@ManyToMany(mappedBy = "skills", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @ManyToMany(mappedBy = "skills")
-    private Set<Developer> developers = new TreeSet<>();
+    private Set<Developer> developers = new HashSet<>();
 
     @Override
     public Pojo initEmpty() {
@@ -95,10 +94,5 @@ public class Skill implements Pojo {
         result = 31 * result + getLanguage().hashCode();
         result = 31 * result + getLevel().hashCode();
         return result;
-    }
-
-    @Override
-    public int compareTo(Pojo o) {
-        return this.getId() - o.getId();
     }
 }

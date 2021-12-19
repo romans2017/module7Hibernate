@@ -23,15 +23,20 @@ public class ProjectDao extends AbstractDao<Project> {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
         try {
-            Project mergedEntity = entityManager.merge(entity);
-            mergedEntity.getDevelopers().forEach(developer -> developer.getProjects().remove(mergedEntity));
-            if (mergedEntity.getCompany() != null) {
-                mergedEntity.getCompany().getProjects().remove(mergedEntity);
+            Project project = read(entity.getId());
+            if (project != null) {
+                project.getDevelopers().forEach(developer -> {
+                    developer.getProjects().remove(project);
+                    entityManager.merge(developer);
+                });
+                if (project.getCompany() != null) {
+                    project.getCompany().removeProject(project);
+                }
+                if (project.getCustomer() != null) {
+                    project.getCustomer().removeProject(project);
+                }
+                entityManager.remove(entity);
             }
-            if (mergedEntity.getCustomer() != null) {
-                mergedEntity.getCustomer().getProjects().remove(mergedEntity);
-            }
-            entityManager.remove(entity);
         } catch (Throwable e) {
             transaction.rollback();
             e.printStackTrace();

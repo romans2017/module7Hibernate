@@ -5,7 +5,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 import java.util.Properties;
 
-public class PostgresController extends AbstractController {
+public class PostgresController implements DbConnector {
 
     public PostgresController(Properties properties) {
 
@@ -15,8 +15,6 @@ public class PostgresController extends AbstractController {
         dataSource.setDatabaseName(properties.getProperty("db.databaseName"));
         dataSource.setUser(properties.getProperty("db.username"));
         dataSource.setPassword(properties.getProperty("db.password"));
-
-        connectionDataSource = dataSource;
 
         Flyway flyway = Flyway.configure()
                 .locations("db/migration/postgres")

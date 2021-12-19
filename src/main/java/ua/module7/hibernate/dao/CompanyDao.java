@@ -21,12 +21,22 @@ public class CompanyDao extends AbstractDao<Company> {
     @Override
     public void delete(Company entity) {
         EntityTransaction transaction = entityManager.getTransaction();
+        ProjectDao projectDao = ProjectDao.getInstance();
+        DeveloperDao developerDao = DeveloperDao.getInstance();
         transaction.begin();
         try {
-            Company mergedEntity = entityManager.merge(entity);
-            mergedEntity.getProjects().forEach(item -> item.setCompany(null));
-            mergedEntity.getDevelopers().forEach(item -> item.setCompany(null));
-            entityManager.remove(mergedEntity);
+            Company company = read(entity.getId());
+            if (company != null) {
+                company.getProjects().forEach(project -> {
+                    project.setCompany(null);
+                    projectDao.update(project);
+                });
+                company.getDevelopers().forEach(developer -> {
+                    developer.setCompany(null);
+                    developerDao.update(developer);
+                });
+                entityManager.remove(company);
+            }
         } catch (Throwable e) {
             transaction.rollback();
             e.printStackTrace();

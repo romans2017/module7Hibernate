@@ -9,9 +9,8 @@ import ua.module7.hibernate.pojo.*;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @WebServlet("/projects/*")
 public class ProjectsServlet extends AbstractServlet<Project> {
@@ -37,12 +36,10 @@ public class ProjectsServlet extends AbstractServlet<Project> {
     protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
         int id = Integer.parseInt(req.getParameter("id"));
 
-        SimpleDateFormat format = new SimpleDateFormat();
-        format.applyPattern("yyyy-MM-dd");
-        Date docDate = null;
+        LocalDate docDate = null;
         try {
-            docDate = format.parse(req.getParameter("creation_date"));
-        } catch (ParseException e) {
+            docDate = LocalDate.parse(req.getParameter("creation_date"));
+        } catch (DateTimeParseException e) {
             e.printStackTrace();
         }
 

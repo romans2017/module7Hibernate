@@ -89,7 +89,7 @@ abstract class AbstractServlet<E extends Pojo> extends HttpServlet {
             func.accept(mapped);
             serviceDao.update(owner);
         }
-        if (mapped == null) {
+        if (owner == null) {
             Constructor<E> constructor = classModel.getConstructor();
             owner = constructor.newInstance().initEmpty();
         }

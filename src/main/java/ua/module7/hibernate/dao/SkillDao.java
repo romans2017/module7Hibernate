@@ -8,7 +8,8 @@ public class SkillDao extends AbstractDao<Skill> {
 
     private static SkillDao instance;
 
-    private SkillDao() {}
+    private SkillDao() {
+    }
 
     public static SkillDao getInstance() {
         if (instance == null) {
@@ -20,11 +21,17 @@ public class SkillDao extends AbstractDao<Skill> {
     @Override
     public void delete(Skill entity) {
         EntityTransaction transaction = entityManager.getTransaction();
+        DeveloperDao developerDao = DeveloperDao.getInstance();
         transaction.begin();
         try {
-            Skill mergedEntity = entityManager.merge(entity);
-            mergedEntity.getDevelopers().forEach(developer -> developer.getSkills().remove(mergedEntity));
-            entityManager.remove(entity);
+            Skill skill = read(entity.getId());
+            if (skill != null) {
+                skill.getDevelopers().forEach(developer -> {
+                    developer.getSkills().remove(skill);
+                    developerDao.update(developer);
+                });
+                entityManager.remove(entity);
+            }
         } catch (Throwable e) {
             transaction.rollback();
             e.printStackTrace();
