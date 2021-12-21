@@ -35,17 +35,17 @@ List<Skill> skillList = (List<Skill>) request.getAttribute("skillList");
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getName()%>"
-                                   name="name" id="name" placeholder="Name" form="saveForm">
+                                   name="name" id="name" placeholder="Name" form="saveForm" onchange="{developer_project_name.value = this.value; developer_skill_name.value = this.value;}">
                         </div>
                         <div class="mb-3">
                             <label for="age" class="form-label">Age</label>
                             <input type="number" class="form-control" min="10" max="200"
                                    value="<%= model.getAge()%>"
-                                   name="age" id="age" placeholder="Age" form="saveForm">
+                                   name="age" id="age" placeholder="Age" form="saveForm" onchange="{developer_project_age.value = this.value; developer_skill_age.value = this.value;}">
                         </div>
                         <div class="mb-3">
                             <label for="company_id" class="form-label">Company</label>
-                            <select class="form-control" name="company_id" id="company_id" form="saveForm">
+                            <select class="form-control" name="company_id" id="company_id" form="saveForm" onchange="{developer_project_company.value = this.value; developer_skill_company.value = this.value;}">
                                 <option value="-1">empty</option>
                                 <%
                                 for (Company company : companyList) {
@@ -61,7 +61,7 @@ List<Skill> skillList = (List<Skill>) request.getAttribute("skillList");
                             <label for="salary" class="form-label">Salary</label>
                             <input type="number" class="form-control" min="0" max="999999999"
                                    value="<%= model.getSalary()%>"
-                                   name="salary" id="salary" placeholder="Salary" form="saveForm">
+                                   name="salary" id="salary" placeholder="Salary" form="saveForm" onchange="{developer_project_salary.value = this.value; developer_skill_salary.value = this.value;}">
                         </div>
                     </form>
                 </div>
@@ -78,13 +78,21 @@ List<Skill> skillList = (List<Skill>) request.getAttribute("skillList");
                         <form action="${pageContext.request.contextPath}/developers/addProject" method="POST" id="addProjectForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="developer_id" value="<%= model.getId()%>" form="addProjectForm"/>
+                                <input hidden type="text" id="developer_project_name" value="<%= model.getName()%>" name="name" form="addProjectForm"/>
+                                <input hidden type="text" id="developer_project_age" value="<%= model.getAge()%>" name="age" form="addProjectForm"/>
+                                <% if (model.getCompany() != null) { %>
+                                    <input hidden type="text" id="developer_project_company" value="<%= model.getCompany().getId()%>" name="company_id" form="addProjectForm"/>
+                                <% } else { %>
+                                    <input hidden type="text" id="developer_project_company" value="-1" name="company_id" form="addProjectForm"/>
+                                <% } %>
+                                <input hidden type="text" id="developer_project_salary" value="<%= model.getSalary()%>" name="salary" form="addProjectForm"/>
                                 <select class="form-control" name="project_id" id="project_id" form="addProjectForm">
                                     <%
                                     for (Project project : projectList) { %>
                                         <option value="<%= project.getId()%>"><%= project.getName()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addProjectForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addProjectForm"/>
                             </div>
                         </form>
                     </div>
@@ -128,13 +136,21 @@ List<Skill> skillList = (List<Skill>) request.getAttribute("skillList");
                         <form action="${pageContext.request.contextPath}/developers/addSkill" method="POST" id="addSkillForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="developer_id" value="<%= model.getId()%>" form="addSkillForm"/>
+                                <input hidden type="text" id="developer_skill_name" value="<%= model.getName()%>" name="name" form="addSkillForm"/>
+                                <input hidden type="text" id="developer_skill_age" value="<%= model.getAge()%>" name="age" form="addSkillForm"/>
+                                <% if (model.getCompany() != null) { %>
+                                    <input hidden type="text" id="developer_skill_company" value="<%= model.getCompany().getId()%>" name="company_id" form="addSkillForm"/>
+                                <% } else { %>
+                                    <input hidden type="text" id="developer_skill_company" value="-1" name="company_id" form="addSkillForm"/>
+                                <% } %>
+                                <input hidden type="text" id="developer_skill_salary" value="<%= model.getSalary()%>" name="salary" form="addSkillForm"/>
                                 <select class="form-control" name="skill_id" id="skill_id" form="addSkillForm">
                                     <%
                                     for (Skill skill : skillList) { %>
                                         <option value="<%= skill.getId()%>"><%= skill.getLanguage()%>,<%= skill.getLevel()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addSkillForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addSkillForm"/>
                             </div>
                         </form>
                     </div>

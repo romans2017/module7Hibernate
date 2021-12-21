@@ -31,22 +31,32 @@ public class CompaniesServlet extends AbstractServlet<Company> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
-        int id = Integer.parseInt(req.getParameter("id"));
-
+    protected Company createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id;
+        Company company;
+        if (req.getParameter("id") == null) {
+            if (req.getParameter("company_id") == null) {
+                id = 0;
+            } else {
+                id = Integer.parseInt(req.getParameter("company_id"));
+            }
+        } else {
+            id = Integer.parseInt(req.getParameter("id"));
+        }
         if (id == 0) {
-            Company company = new Company()
+            company = new Company()
                     .setName(req.getParameter("name"))
                     .setCountry(req.getParameter("country"));
             serviceDao.create(company);
         } else {
-            Company company = serviceDao.read(id);
+            company = serviceDao.read(id);
             if (company != null) {
                 company.setCountry(req.getParameter("country"))
                         .setName(req.getParameter("name"));
                 serviceDao.update(company);
             }
         }
+        return company;
     }
 
     @Override
@@ -59,7 +69,7 @@ public class CompaniesServlet extends AbstractServlet<Company> {
     }
 
     private void addProject(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Company company = serviceDao.read(Integer.parseInt(req.getParameter("company_id")));
+        Company company = createUpdateModel(req);
         Project project = serviceDaoProject.read(Integer.parseInt(req.getParameter("project_id")));
         company = addRemoveBindFromMappedToOwner(project, company, serviceDaoProject, project::addCompany);
         postEditRequest(company, req, resp);
@@ -73,7 +83,7 @@ public class CompaniesServlet extends AbstractServlet<Company> {
     }
 
     private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Company company = serviceDao.read(Integer.parseInt(req.getParameter("company_id")));
+        Company company = createUpdateModel(req);
         Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
         company = addRemoveBindFromMappedToOwner(developer, company, serviceDaoDeveloper, developer::addCompany);
         postEditRequest(company, req, resp);

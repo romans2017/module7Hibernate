@@ -42,7 +42,7 @@ abstract class AbstractServlet<E extends Pojo> extends HttpServlet {
     @Override
     abstract protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
 
-    abstract protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException;
+    abstract protected E createUpdateModel(HttpServletRequest req) throws NumberFormatException;
 
     abstract protected void postEditRequest(E model, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
 

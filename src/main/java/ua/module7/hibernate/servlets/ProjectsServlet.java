@@ -33,8 +33,18 @@ public class ProjectsServlet extends AbstractServlet<Project> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
-        int id = Integer.parseInt(req.getParameter("id"));
+    protected Project createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id;
+        Project project;
+        if (req.getParameter("id") == null) {
+            if (req.getParameter("project_id") == null) {
+                id = 0;
+            } else {
+                id = Integer.parseInt(req.getParameter("project_id"));
+            }
+        } else {
+            id = Integer.parseInt(req.getParameter("id"));
+        }
 
         LocalDate docDate = null;
         try {
@@ -42,9 +52,8 @@ public class ProjectsServlet extends AbstractServlet<Project> {
         } catch (DateTimeParseException e) {
             e.printStackTrace();
         }
-
         if (id == 0) {
-            Project project = new Project()
+            project = new Project()
                     .setName(req.getParameter("name"))
                     .setCost(Integer.parseInt(req.getParameter("cost")))
                     .setCreationDate(docDate)
@@ -62,7 +71,7 @@ public class ProjectsServlet extends AbstractServlet<Project> {
                 serviceDao.update(project);
             }
         } else {
-            Project project = serviceDao.read(id);
+            project = serviceDao.read(id);
             if (project != null) {
                 project.setName(req.getParameter("name"))
                         .setCost(Integer.parseInt(req.getParameter("cost")))
@@ -89,6 +98,7 @@ public class ProjectsServlet extends AbstractServlet<Project> {
                 }
             }
         }
+        return project;
     }
 
     @Override
@@ -102,7 +112,7 @@ public class ProjectsServlet extends AbstractServlet<Project> {
     }
 
     private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Project project = serviceDao.read(Integer.parseInt(req.getParameter("project_id")));
+        Project project = createUpdateModel(req);
         Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
         project = addRemoveBindFromMappedToOwner(developer, project, serviceDaoDeveloper, developer::addProject);
         postEditRequest(project, req, resp);

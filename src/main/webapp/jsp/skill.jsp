@@ -33,13 +33,13 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                             <label for="language" class="form-label">Language</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getLanguage()%>"
-                                   name="language" id="language" placeholder="Language" form="saveForm">
+                                   name="language" id="language" placeholder="Language" form="saveForm" onchange="skill_language.value = this.value">
                         </div>
                         <div class="mb-3">
                             <label for="level" class="form-label">Level</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getLevel()%>"
-                                   name="level" id="level" placeholder="Level" form="saveForm">
+                                   name="level" id="level" placeholder="Level" form="saveForm" onchange="skill_level.value = this.value">
                         </div>
                     </form>
                 </div>
@@ -56,13 +56,15 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                         <form action="${pageContext.request.contextPath}/skills/addDeveloper" method="POST" id="addDeveloperForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="skill_id" value="<%= model.getId()%>" form="addDeveloperForm"/>
+                                <input hidden type="text" id="skill_language" name="language" value="<%= model.getLanguage()%>" form="addDeveloperForm"/>
+                                <input hidden type="text" id="skill_level" name="level" value="<%= model.getLevel()%>" form="addDeveloperForm"/>
                                 <select class="form-control" name="developer_id" id="developer_id" form="addDeveloperForm">
                                     <%
                                     for (Developer developer : developerList) { %>
                                         <option value="<%= developer.getId()%>"><%= developer.getName()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addDeveloperForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addDeveloperForm"/>
                             </div>
                         </form>
                     </div>

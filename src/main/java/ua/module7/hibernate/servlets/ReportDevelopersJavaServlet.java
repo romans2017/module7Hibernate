@@ -35,7 +35,8 @@ public class ReportDevelopersJavaServlet<E> extends AbstractServlet<Developer> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+    protected Developer createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        return null;
     }
 
     @Override

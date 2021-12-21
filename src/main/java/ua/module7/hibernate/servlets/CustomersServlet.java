@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.pojo.Company;
 import ua.module7.hibernate.pojo.Customer;
 import ua.module7.hibernate.pojo.Project;
 
@@ -28,22 +29,32 @@ public class CustomersServlet extends AbstractServlet<Customer> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
-        int id = Integer.parseInt(req.getParameter("id"));
-
+    protected Customer createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id;
+        Customer customer;
+        if (req.getParameter("id") == null) {
+            if (req.getParameter("customer_id") == null) {
+                id = 0;
+            } else {
+                id = Integer.parseInt(req.getParameter("customer_id"));
+            }
+        } else {
+            id = Integer.parseInt(req.getParameter("id"));
+        }
         if (id == 0) {
-            Customer customer = new Customer()
+            customer = new Customer()
                     .setName(req.getParameter("name"))
                     .setCountry(req.getParameter("country"));
             serviceDao.create(customer);
         } else {
-            Customer customer = serviceDao.read(id);
+            customer = serviceDao.read(id);
             if (customer != null) {
                 customer.setCountry(req.getParameter("country"))
                         .setName(req.getParameter("name"));
                 serviceDao.update(customer);
             }
         }
+        return customer;
     }
 
     @Override
@@ -55,7 +66,7 @@ public class CustomersServlet extends AbstractServlet<Customer> {
     }
 
     private void addProject(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Customer customer = serviceDao.read(Integer.parseInt(req.getParameter("customer_id")));
+        Customer customer = createUpdateModel(req);
         Project project = serviceDaoProject.read(Integer.parseInt(req.getParameter("project_id")));
         customer = addRemoveBindFromMappedToOwner(project, customer, serviceDaoProject, project::addCustomer);
         postEditRequest(customer, req, resp);

@@ -35,13 +35,13 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getName()%>"
-                                   name="name" id="name" placeholder="Name" form="saveForm">
+                                   name="name" id="name" placeholder="Name" form="saveForm" onchange="{company_project_name.value = this.value; company_developer_name.value = this.value;}">
                         </div>
                         <div class="mb-3">
                             <label for="country" class="form-label">Country</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getCountry()%>"
-                                   name="country" id="country" placeholder="Country" form="saveForm">
+                                   name="country" id="country" placeholder="Country" form="saveForm" onchange="{company_project_country.value = this.value; company_developer_country.value = this.value;}">
                         </div>
                     </form>
                 </div>
@@ -58,13 +58,15 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                         <form action="${pageContext.request.contextPath}/companies/addProject" method="POST" id="addProjectForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="company_id" value="<%= model.getId()%>" form="addProjectForm"/>
+                                <input hidden type="text" id="company_project_name" value="<%= model.getName()%>" name="name" form="addProjectForm"/>
+                                <input hidden type="text" id="company_project_country" value="<%= model.getCountry()%>" name="country" form="addProjectForm"/>
                                 <select class="form-control" name="project_id" id="project_id" form="addProjectForm">
                                     <%
                                     for (Project project : projectList) { %>
                                         <option value="<%= project.getId()%>"><%= project.getName()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addProjectForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addProjectForm"/>
                             </div>
                         </form>
                     </div>
@@ -108,13 +110,15 @@ List<Developer> developerList = (List<Developer>) request.getAttribute("develope
                         <form action="${pageContext.request.contextPath}/companies/addDeveloper" method="POST" id="addDeveloperForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="company_id" value="<%= model.getId()%>" form="addDeveloperForm"/>
+                                <input hidden type="text" id="company_developer_name" name="name" form="addDeveloperForm"/>
+                                <input hidden type="text" id="company_developer_country" name="country" form="addDeveloperForm"/>
                                 <select class="form-control" name="developer_id" id="developer_id" form="addDeveloperForm">
                                     <%
                                     for (Developer developer : developerList) { %>
                                         <option value="<%= developer.getId()%>"><%= developer.getName()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addDeveloperForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addDeveloperForm"/>
                             </div>
                         </form>
                     </div>

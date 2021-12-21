@@ -26,7 +26,8 @@ public class ReportProjectsServlet extends AbstractServlet<Project> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+    protected Project createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        return null;
     }
 
     @Override

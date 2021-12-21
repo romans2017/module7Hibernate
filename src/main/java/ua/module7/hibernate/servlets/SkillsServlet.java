@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ua.module7.hibernate.dao.Dao;
+import ua.module7.hibernate.pojo.Company;
 import ua.module7.hibernate.pojo.Developer;
 import ua.module7.hibernate.pojo.Skill;
 
@@ -28,22 +29,32 @@ public class SkillsServlet extends AbstractServlet<Skill> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
-        int id = Integer.parseInt(req.getParameter("id"));
-
+    protected Skill createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id;
+        Skill skill;
+        if (req.getParameter("id") == null) {
+            if (req.getParameter("skill_id") == null) {
+                id = 0;
+            } else {
+                id = Integer.parseInt(req.getParameter("skill_id"));
+            }
+        } else {
+            id = Integer.parseInt(req.getParameter("id"));
+        }
         if (id == 0) {
-            Skill skill = new Skill()
+            skill = new Skill()
                     .setLanguage(req.getParameter("language"))
                     .setLevel(req.getParameter("level"));
             serviceDao.create(skill);
         } else {
-            Skill skill = serviceDao.read(id);
+            skill = serviceDao.read(id);
             if (skill != null) {
                 skill.setLanguage(req.getParameter("language"))
                         .setLevel(req.getParameter("level"));
                 serviceDao.update(skill);
             }
         }
+        return skill;
     }
 
     @Override
@@ -55,7 +66,7 @@ public class SkillsServlet extends AbstractServlet<Skill> {
     }
 
     private void addDeveloper(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Skill skill = serviceDao.read(Integer.parseInt(req.getParameter("skill_id")));
+        Skill skill = createUpdateModel(req);
         Developer developer = serviceDaoDeveloper.read(Integer.parseInt(req.getParameter("developer_id")));
         skill = addRemoveBindFromMappedToOwner(developer, skill, serviceDaoDeveloper, developer::addSkill);
         postEditRequest(skill, req, resp);

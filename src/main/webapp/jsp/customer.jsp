@@ -34,13 +34,13 @@ List<Project> projectList = (List<Project>) request.getAttribute("projectList");
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getName()%>"
-                                   name="name" id="name" placeholder="Name" form="saveForm">
+                                   name="name" id="name" placeholder="Name" form="saveForm" onchange="customer_name.value = this.value">
                         </div>
                         <div class="mb-3">
                             <label for="country" class="form-label">Country</label>
                             <input type="text" class="form-control"
                                    value="<%= model.getCountry()%>"
-                                   name="country" id="country" placeholder="Country" form="saveForm">
+                                   name="country" id="country" placeholder="Country" form="saveForm" onchange="customer_country.value = this.value">
                         </div>
                     </form>
                 </div>
@@ -57,13 +57,15 @@ List<Project> projectList = (List<Project>) request.getAttribute("projectList");
                         <form action="${pageContext.request.contextPath}/customers/addProject" method="POST" id="addCustomerForm">
                             <div class="input-group mb-3">
                                 <input hidden type="text" name="customer_id" value="<%= model.getId()%>" form="addCustomerForm"/>
+                                <input hidden type="text" id="customer_name" name="name" value="<%= model.getName()%>" form="addCustomerForm"/>
+                                <input hidden type="text" id="customer_country" name="country" value="<%= model.getCountry()%>" form="addCustomerForm"/>
                                 <select class="form-control" name="project_id" id="project_id" form="addCustomerForm">
                                     <%
                                     for (Project project : projectList) { %>
                                         <option value="<%= project.getId()%>"><%= project.getName()%></option>
                                     <% } %>
                                 </select>
-                                <input type="submit" class="btn btn-primary" value="Add" form="addCustomerForm"/>
+                                <input type="submit" class="btn btn-primary" value="Save & Add" form="addCustomerForm"/>
                             </div>
                         </form>
                     </div>

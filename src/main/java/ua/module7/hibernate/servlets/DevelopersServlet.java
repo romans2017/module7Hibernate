@@ -5,10 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ua.module7.hibernate.dao.Dao;
-import ua.module7.hibernate.pojo.Company;
-import ua.module7.hibernate.pojo.Developer;
-import ua.module7.hibernate.pojo.Project;
-import ua.module7.hibernate.pojo.Skill;
+import ua.module7.hibernate.pojo.*;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -34,11 +31,20 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
     }
 
     @Override
-    protected void createUpdateModel(HttpServletRequest req) throws NumberFormatException {
-        int id = Integer.parseInt(req.getParameter("id"));
-
+    protected Developer createUpdateModel(HttpServletRequest req) throws NumberFormatException {
+        int id;
+        Developer developer;
+        if (req.getParameter("id") == null) {
+            if (req.getParameter("developer_id") == null) {
+                id = 0;
+            } else {
+                id = Integer.parseInt(req.getParameter("developer_id"));
+            }
+        } else {
+            id = Integer.parseInt(req.getParameter("id"));
+        }
         if (id == 0) {
-            Developer developer = new Developer()
+            developer = new Developer()
                     .setName(req.getParameter("name"))
                     .setSalary(Integer.parseInt(req.getParameter("salary")))
                     .setAge(Integer.parseInt(req.getParameter("age")));
@@ -49,7 +55,7 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
                 serviceDao.update(developer);
             }
         } else {
-            Developer developer = serviceDao.read(id);
+            developer = serviceDao.read(id);
             if (developer != null) {
                 developer.setName(req.getParameter("name"))
                         .setSalary(Integer.parseInt(req.getParameter("salary")))
@@ -65,6 +71,7 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
                 serviceDao.update(developer);
             }
         }
+        return developer;
     }
 
     @Override
@@ -78,7 +85,7 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
     }
 
     private void addProject(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
+        Developer developer = createUpdateModel(req);
         Project project = serviceDaoProject.read(Integer.parseInt(req.getParameter("project_id")));
         if (developer != null) {
             developer = addRemoveBindFromOwnerToMapped(developer, project, developer::addProject);
@@ -100,7 +107,7 @@ public class DevelopersServlet extends AbstractServlet<Developer> {
     }
 
     private void addSkill(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Developer developer = serviceDao.read(Integer.parseInt(req.getParameter("developer_id")));
+        Developer developer = createUpdateModel(req);
         Skill skill = serviceDaoSkill.read(Integer.parseInt(req.getParameter("skill_id")));
         if (developer != null) {
             developer = addRemoveBindFromOwnerToMapped(developer, skill, developer::addSkill);
